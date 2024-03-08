@@ -1,0 +1,7 @@
+{
+    "issuer": "Express-Blueprint",
+    "sql": {
+        "database_file": "./db/mydatabase.db",
+        "sql_directory": "./sql"
+    }
+}

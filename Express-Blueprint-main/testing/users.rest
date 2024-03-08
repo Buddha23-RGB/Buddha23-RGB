@@ -1,0 +1,7 @@
+GET http://localhost:8888/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInN1YklkIjoiMzllNTVmN2YtNjVkYy00Mjc4LTlkMjktNjMzNjQ0MzYxZTllIiwiaXNzIjoiRXhwcmVzcy1CbHVlcHJpbnQiLCJpYXQiOjE2ODE4NDE4NzksImV4cCI6MTY4MTg0OTA3OX0.vqvI_D2lQMQgU6R589dczAQdD3h0B-uFW4ShfWyjxi8
+Content-Type: application/json
+
+{
+    "uuid": "39e55f7f-65dc-4278-9d29-633644361e9e"
+}

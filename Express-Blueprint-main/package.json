@@ -1,0 +1,49 @@
+{
+  "name": "express-blueprint",
+  "version": "1.0.0",
+  "description": "A solid starting point for building a backend server in Node.js using the popular Express framework. This blueprint includes essential features such as routing, middleware, error handling, and configuration setup, providing you with a strong foundation for your project.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "start:watch": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Buddha23-RGB/WebsiteBluprint.git"
+  },
+  "keywords": [
+    "express",
+    "node.js",
+    "backend",
+    "server",
+    "api",
+    "rest",
+    "starter kit",
+    "template",
+    "web development",
+    "javascript"
+  ],
+  "author": "https://github.com/Buddha23-RGB",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Buddha23-RGB/WebsiteBluprint/issues"
+  },
+  "homepage": "https://github.com/Buddha23-RGB/WebsiteBluprint#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
+    "express-validator": "^6.15.0",
+    "jsonwebtoken": "^9.0.0",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.22",
+    "sql": "^0.78.0",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.3",
+    "watch": "^1.0.2"
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>OpenAPI Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.4.0/swagger-ui.min.css" integrity="sha512-eqjZzJpGkE+8/i4SPk2jReyDtfJYwzV7lsuE+Gs1VhDLoaFEDk65SY+1G9fPYyAVAgAYK10ilB/8EK1A30ktZw==" crossorigin="anonymous" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .wrapper {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em;
+      }
+      h1, h2 {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: normal;
+      }
+      h1 {
+        font-size: 2.5em;
+        margin-top: 1em;
+      }
+      h2 {
+        font-size: 1.5em;
+        margin-top: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1>OpenAPI Documentation</h1>
+      <div id="swagger-ui"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.4.0/swagger-ui-bundle.js" integrity="sha512-pGEl3yvADhEjB+lC6OhL0XdI7It6UfZK71o+f6f66G1qgmIH6mT7hzxjhc1Q2cSRkG9Xs/Rp7+mZltWJtxk7qA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.4.0/swagger-ui-standalone-preset.js" integrity="sha512-wK8uItgCz6rlyDvHc/5W8FfCDJgKKh4dyNv5NN0dpyN5J0fz9eK+20dM1Al8QaYKjJmR/pvIKo+AmWm8mK3qXw==" crossorigin="anonymous"></script>
+    <script>
+      window.onload = function() {
+        const ui = SwaggerUIBundle({
+          url: "./apidocs.yml",
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset
+          ],
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: "BaseLayout",
+        });
+        window.ui = ui;
+      }
+    </script>
+  </body>
+</html>
