@@ -1,4 +1,5 @@
 #%%
+import json
 import warnings
 import matplotlib.pyplot as plt
 import datetime
@@ -123,31 +124,47 @@ def plot_price_and_signals(df_final):
         price_min = df_final['Price'].min()
         price_max = df_final['Price'].max()
         price_buffer = (price_max - price_min) * buffer_percent
-        df_final = df_final.iloc[-400:]
-        # Plot the Price
-        fig, ax = plt.subplots(figsize=(14, 7))
-        ax.plot(df_final.index, df_final['Price'],
-                label='Price', color='skyblue')
+
+        # Create a 4-row subplot figure
+        fig, axs = plt.subplots(4, 1, figsize=(14, 14), sharex=True)
+
+        # Plot the Price on the first row
+        axs[0].plot(df_final.index, df_final['Price'],
+                    label='Price', color='skyblue')
 
         # Plot signal changes as markers
         long_signals = df_final[df_final['Signal'].diff() > 0]
         short_signals = df_final[df_final['Signal'].diff() < 0]
-        ax.scatter(long_signals.index,
-                   long_signals['Price'], label='Long Signal', color='g', marker='^')
-        ax.scatter(short_signals.index,
-                   short_signals['Price'], label='Short Signal', color='r', marker='v')
+        axs[0].scatter(long_signals.index, long_signals['Price'],
+                       label='Long Signal', color='g', marker='^')
+        axs[0].scatter(short_signals.index, short_signals['Price'],
+                       label='Short Signal', color='r', marker='v')
 
-        # Customize and show the plot
-        ax.set_title(f'Price with Signal Changes for {symbol}')
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Price')
-        ax.legend()
+        # Customize the first plot
+        axs[0].set_title(f'Price with Signal Changes for {symbol}')
+        axs[0].set_ylabel('Price')
+        axs[0].legend()
 
         # Set y-axis limits with buffer
-        ax.set_ylim(price_min - price_buffer, price_max + price_buffer)
+        axs[0].set_ylim(price_min - price_buffer, price_max + price_buffer)
+
+        # Plot the multipliers on the remaining rows
+        axs[1].plot(df_final.index, df_final['multiplier_div'],
+                    label='Multiplier Div', color='purple')
+        axs[2].plot(df_final.index, df_final['multiplier_cor'],
+                    label='Multiplier Cor', color='orange')
+        axs[3].plot(df_final.index, df_final['multiplier_ds'],
+                    label='Multiplier DS', color='brown')
+
+        # Customize the multiplier plots
+        for i, label in enumerate(['Multiplier Div', 'Multiplier Cor', 'Multiplier DS'], start=1):
+            axs[i].set_ylabel(label)
+            axs[i].legend()
+
+        axs[3].set_xlabel('Date')  # Set x-label on the last plot
 
         # Save the figure
-        chart_filename = f'C:/workspaces/Congestion/hourly/charts_divergence/price_chart_{symbol}.jpg'
+        chart_filename = f"C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\charts\\price_chart_{symbol}.jpg"
         fig.savefig(chart_filename)
         plt.close(fig)  # Close the figure to free up memory
 
@@ -159,16 +176,25 @@ warnings.filterwarnings('ignore')
 
 engine = create_engine(
     'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db')
-db_file = r"C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db"
+
+
+# Load the configuration file
+with open('config.json') as f:
+    config = json.load(f)
+
+# Get the paths from the configuration file
+root_dir = config['root_dir']
+table_path = config['table_path']
+
 for symbol in symbols:
     table = final_table(symbol)
 
     # Fill NaN values with the method 'ffill'
     table.fillna(method='ffill', inplace=True)
 
-    table_path = os.path.join(
-        "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/final_tables", f"{symbol}.csv")
-    table.to_csv(table_path)
+    # Use the table_path from the configuration file
+    table_file_path = os.path.join(table_path, f"{symbol}.csv")
+    table.to_csv(table_file_path)
 
     plot_price_and_signals(table)
 
@@ -178,6 +204,6 @@ for symbol in symbols:
     
   
 #%%
-table
+table.tail(5)
 # %%
 
