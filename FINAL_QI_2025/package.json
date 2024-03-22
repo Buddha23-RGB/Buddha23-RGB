@@ -1,0 +1,19 @@
+{
+  "name": "final_qi_2025",
+  "version": "1.0.0",
+  "description": "My Final Web Portfolio Manage",
+  "main": "app.py",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Buddha23-RGB/Buddha23-RGB.git"
+  },
+  "author": "Buddha",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Buddha23-RGB/Buddha23-RGB/issues"
+  },
+  "homepage": "https://github.com/Buddha23-RGB/Buddha23-RGB#readme"
+}

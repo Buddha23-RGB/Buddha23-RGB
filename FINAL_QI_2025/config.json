@@ -4,11 +4,13 @@
     "port": 3000,
     "name": "stocks",
     "user": "QI",
-    "password": "P@ss30rd"
+    "password": "P@ss30rd",
+    "db_file": "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db"
   },
   "root_dir": "c:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025",
   "rel_path": "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025",
   "table_path": "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\tables",
+  "chart_path": "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\charts",
   "benchmarks": [
     "SPY",
     "IWM",
