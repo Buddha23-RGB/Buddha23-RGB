@@ -61,8 +61,6 @@ start_quarter = now - datetime.timedelta(days=80)
 
 # Set up database connection
 rel_path = commons.table_path
-engine = create_engine(
-    'sqlite:///C:/workspaces/Congestion/hourly/sql/datastore.db')
 
 # Get the list of symbols
 symbols = commons.short_list
@@ -149,11 +147,11 @@ def plot_price_and_signals(df_final):
         axs[0].set_ylim(price_min - price_buffer, price_max + price_buffer)
 
         # Plot the multipliers on the remaining rows
-        axs[1].plot(df_final.index, df_final['multiplier_div'],
+        axs[1].plot(df_final.index, df_final['signal_div'],
                     label='Multiplier Div', color='purple')
-        axs[2].plot(df_final.index, df_final['multiplier_cor'],
+        axs[2].plot(df_final.index, df_final['signal_cor'],
                     label='Multiplier Cor', color='orange')
-        axs[3].plot(df_final.index, df_final['multiplier_ds'],
+        axs[3].plot(df_final.index, df_final['signal_ds'],
                     label='Multiplier DS', color='brown')
 
         # Customize the multiplier plots
@@ -194,6 +192,12 @@ for symbol in symbols:
 
     # Use the table_path from the configuration file
     table_file_path = os.path.join(table_path, f"{symbol}.csv")
+        
+    column_names = ['symbol', 'signal_idx', 'signal_ci',
+                    'signal_div', 'signal_ds', 'signal_cor', 'Multiplier', 'Signal', 'Price']
+    table = pd.DataFrame(table, columns=column_names, index=table.index)
+
+
     table.to_csv(table_file_path)
 
     plot_price_and_signals(table)
@@ -206,4 +210,3 @@ for symbol in symbols:
 #%%
 table.tail(5)
 # %%
-

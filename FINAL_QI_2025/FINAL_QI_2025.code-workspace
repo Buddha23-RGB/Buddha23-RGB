@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "Buddha23-RGB: FINAL_QI_2025",
+			"path": ".."
 		}
 	],
 	"settings": {}
