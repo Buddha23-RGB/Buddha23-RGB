@@ -208,5 +208,3 @@ for symbol in symbols:
     
   
 #%%
-table.tail(5)
-# %%
