@@ -83,12 +83,13 @@ short_list = ['AAPL', 'TSLA', 'NVDA', 'SPY', 'SOXX', 'MSFT', 'GOOG', 'META', 'AM
 windows = [15, 20, 25, 30, 40, 50,
            80, 90, 100, 125, 150, 180, 240]
 table_path = "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\tables"
+final_path = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/final_tables"
 # Suppress warnings if needed
 warnings.filterwarnings('ignore')
 
 with open('config.json') as f:
     config = json.load(f)
-
+final_path = config['final_path']
 root_dir = config['root_dir']
 rel_path = config['rel_path']
 table_path = config['table_path']

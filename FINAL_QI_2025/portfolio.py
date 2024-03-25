@@ -208,3 +208,5 @@ for symbol in symbols:
     
   
 #%%
+table
+# %%
