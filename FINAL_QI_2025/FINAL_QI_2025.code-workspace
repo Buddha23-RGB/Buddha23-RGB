@@ -8,5 +8,7 @@
 			"path": ".."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "FINAL_QI_2025"
+	}
 }

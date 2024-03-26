@@ -111,13 +111,7 @@ df.set_index(['Ticker', 'Datetime'], inplace=True)
 
 df
 df.to_csv(f"{final_path}/main_data.csv")
-# portfolio = pd.DataFrame(data)
-
-# portfolio.sort_values(by='Multiplier', ascending=False, inplace=True)
-# #%%
-# portfolio.set_index('Symbols', inplace = True)
-# #%%
-# html_table = portfolio.to_html('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/user_portfolio.html')
+pivot_table.to_csv(f"{final_path}/multiplier_data.csv")
 
 #%%
 import pandas as pd
@@ -154,10 +148,14 @@ def style_table(portfolio):
     <html>
     <head>
     <style>
+        body {{
+            background-color: #000000;
+        }}
         table {{
             border-collapse: collapse;
             width: 100%;
             font-family: Arial, sans-serif;
+            color: #FFFFFF;
         }}
         th {{
             background-color: #4CAF50;

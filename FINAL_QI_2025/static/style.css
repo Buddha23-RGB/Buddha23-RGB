@@ -1,0 +1,59 @@
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+.columns {
+    display: flex;
+}
+
+.column {
+    flex: 1;
+}
+
+.column.is-9 {
+    flex: 9;
+}
+
+.column.is-3 {
+    flex: 3;
+}
+
+.input {
+    width: 100%;
+    padding: 0.5em;
+    margin: 0.5em 0;
+    box-sizing: border-box;
+}
+
+.button.is-primary {
+    background-color: #00d1b2;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.container {
+    margin-top: 10px;
+}
+
+.table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle th,
+.table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle tr:hover {
+    background-color: #ddd;
+}
