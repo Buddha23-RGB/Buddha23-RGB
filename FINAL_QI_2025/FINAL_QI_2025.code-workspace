@@ -9,6 +9,8 @@
 		}
 	],
 	"settings": {
-		"liveServer.settings.multiRootWorkspaceName": "FINAL_QI_2025"
+		"liveServer.settings.multiRootWorkspaceName": "FINAL_QI_2025",
+		"powershell.cwd": "FINAL_QI_2025",
+		"npm-scripts.showStartNotification": false
 	}
 }

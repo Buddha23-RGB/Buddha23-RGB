@@ -11,49 +11,242 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
     <link rel="stylesheet" href="styles.css">
+>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/favicon.ico" rel="icon">
+    <link rel="stylesheet" type="text/css" href="static/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Great Vibes', cursive;
+            color: lightgreen;
+        }
+
+        iframe {
+            border: none;
+        }
+
+        div {
+            margin-bottom: 100px;
+        }
+
+        .plotly-graph-container {
+            width: 90%;
+            height: 500px;
+        }
+
+        header,
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+        }
+
+        nav ul li a {
+            display: inline-block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        #main-content {
+            padding: 15px;
+        }
+
+        #sidebar {
+            float: left;
+            width: 20%;
+            background-color: #e7e7e7;
+            padding: 10px;
+        }
+
+        #content-area {
+            float: right;
+            width: 75%;
+        }
+
+        .input-form {
+            margin-bottom: 20px;
+        }
+
+        .input-form label {
+            display: block;
+        }
+
+        .input-form input {
+            margin-bottom: 10px;
+        }
+
+        .recommendation-area {
+            background-color: #e7e7e7;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        .navbar {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        .navbar li {
+            float: left;
+        }
+
+        .navbar li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar li a:hover {
+            background-color: #111;
+        }
+    </style>
+    <title>QuantInvests' Investment App</title>
 </head>
 
 <body>
-    <section class="section">
-        <div class="columns">
-            <!-- Sidebar -->
-            <div class="column is-2">
-                <aside class="menu">
-                    <p class="menu-label">
-                        General
-                    </p>
-                    <ul class="menu-list">
-                        <li><a>Dashboard</a></li>
-                        <li><a>Customers</a></li>
-                    </ul>
-                    <p class="menu-label">
-                        Administration
-                    </p>
-                    <ul class="menu-list">
-                        <li><a>Team Settings</a></li>
-                        <li>
-                            <a class="is-active">Manage Your Team</a>
-                            <ul>
-                                <li><a>Members</a></li>
-                                <li><a>Plugins</a></li>
-                                <li><a>Add a member</a></li>
-                            </ul>
-                        </li>
-                        <li><a>Invitations</a></li>
-                        <li><a>Cloud Storage Environment Settings</a></li>
-                        <li><a>Authentication</a></li>
-                    </ul>
-                    <p class="menu-label">
-                        Transactions
-                    </p>
-                    <ul class="menu-list">
-                        <li><a>Payments</a></li>
-                        <li><a>Transfers</a></li>
-                        <li><a>Balance</a></li>
-                    </ul>
-                </aside>
+    <header>
+        <h1>QuantInvests Investment App</h1>
+    </header>
+</body>
+<nav class="navbar">
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+        <li><a href="{{ url_for('about') }}">About</a></li>
+        <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
+        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+    </ul>
+</nav>
+<header class="masthead mb-auto" style="display: flex; align-items: center; margin-bottom: 0;">
+    <img class="logo-img" src="/static/LOGO_Flask.png" alt="Where the Quant Invests for you!"
+        style="width: 100px; height: auto;">
+    <div>
+        <a href="http://quantinvests.com">Quant Invests</a>
+        <h1 class="cover-heading"><b>Quant Invests</b></h1>
+        <p class="lead">Where the <i>Quant Invests</i> for you!</p>
+        <p><small>This financial widget was built by Joe Chamoun.</small></p>
+    </div>
+</header>
+<section>
+    <section style="text-align: center; background-color: #f8f9fa; padding: 10px;">
+        <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0"></div>
+        <h2>Long Portfolio Breakdown by Percent of Portfolio:</h2>
+        <iframe src="/static/pie_table_long.html" width="100%" height="600" title="Long Portfolio Breakdown"></iframe>
+        <h2 style="color:red;">Short Portfolio Breakdown by Percent of Portfolio:</h2>
+        <iframe src="/static/pie_table_short.html" width="100%" height="600" title="Short Portfolio Breakdown"></iframe>
+        <section>
+            <div class="plotly-graph-container">
+
+                <h2>Quant Invests Customized Indicator:</h2>
+                {{ div|safe }}
             </div>
+        </section>
+        <div style="display: grid; place-items: center;">
+            <!-- Your content here -->
+
+            <div style="text-align:center;">
+                <div class="input-group mb-3">
+                    <form id="symbol-form" action="/data" method="POST">
+                        <h3>Input Symbol <span style="color:red;">from the list Below</span><br> to view a
+                            comprehensive 14 period hourly table<input type="text" name="symbol" />
+                        </h3>
+                        <p><input type="submit" value="Submit" /></p>
+                    </form>
+                </div>
+                <div style="text-align:center;">
+                    <!-- Container for the table -->
+                    <div id="table-container"></div>
+                    <div style="text-align:center;">
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $(document).ready(function () {
+                                $('#symbol-form').on('submit', function (event) {
+                                    event.preventDefault();
+
+                                    // Get the entered symbol
+                                    var symbol = $(this).find('input[name="symbol"]').val();
+
+                                    // Load the HTML file for the entered symbol into the table container
+                                    $('#table-container').load('/charts/' + symbol + '.html', function (response, status, xhr) {
+                                        if (status == "error") {
+                                            var msg = "Sorry but there was an error: ";
+                                            alert(msg + xhr.status + " " + xhr.statusText);
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- /container -->
+    </section>
+    </div>
+    <section>
+        <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+            <div style="text-align:center;">
+                <h2>Current Portfolio Weightings: </h2>
+                <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+                    <pre><span style="color:green; font-size: 30px;">Bullish Portfolio: {{ bullish }}%</span></pre>
+                    <pre><span style="color:red; font-size: 30px;">Bearish Portfolio: {{ bearish }}%</span></pre>
+                    <iframe id="tables" src="/tables/table_css.html" height="1050" width="770"></iframe>
+                </div>
+    </section>
+    </main>
+    </div>
+
+    <footer class="small text-center text-muted">
+        <p>Created by <a href="https://quantinvests.com">Quant Invests Software</a></p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <!-- Removed duplicate jQuery script include -->
+    <!-- <script src="/static/scripts/site.js"></script> -->
+
             <!-- Main content area -->
             <div class="column">
                 {%block body%}

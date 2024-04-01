@@ -1,6 +1,5 @@
 # %%
 import matplotlib.pyplot as plt
-
 import commons
 from commons import *
 import numpy as np
@@ -30,7 +29,6 @@ plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
 
 sns.set_style('whitegrid')
 # %%
-
 
 class CongestionIndexTrader:
     def __init__(self, symbol, start, now, interval, windows):

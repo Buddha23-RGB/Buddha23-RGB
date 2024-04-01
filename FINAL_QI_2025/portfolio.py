@@ -1,3 +1,8 @@
+# %%
+from datetime import datetime
+from Congestion import *
+from Divergence import *
+
 #%%
 import json
 import warnings
@@ -205,8 +210,203 @@ for symbol in symbols:
     # Save the last 20 rows to the SQL database
     with engine.connect() as connection:
         table.tail(20).to_sql(symbol, connection, if_exists='replace')
-    
-  
-#%%
-table
+
+
 # %%
+def get_final_data(tickers):
+    def data(ticker):
+        return pd.read_csv(f"{table_path}/{ticker}.csv", index_col='Datetime')
+    datas = map(data, tickers)
+    return pd.concat(datas, keys=tickers, names=['Ticker', 'Datetime'])
+
+
+# Load data
+df = get_final_data(commons.short_list)
+df.fillna(0, inplace=True)
+# %%
+pivot_table = df['Multiplier'].unstack(level='Ticker')
+pivot_table.fillna(0, inplace=True)
+# %%
+signal_pivot = df['Signal'].unstack(level='Ticker')
+multiplier_sum = pivot_table.sum(axis=1)
+signal_sum = signal_pivot.sum(axis=1)
+df = df.reset_index(level='Ticker')
+df['MultiplierSum'] = multiplier_sum
+df['SignalSum'] = signal_sum
+df.reset_index(inplace=True)
+df.set_index(['Ticker', 'Datetime'], inplace=True)
+df.to_csv(f"{final_path}/main_data.csv")
+pivot_table.to_csv(f"{final_path}/multiplier_data.csv")
+
+#%%
+def create_portfolio(df):
+    data = []
+    for symbol in commons.short_list:
+        table = df.loc[symbol]
+        data.append({
+            'Symbols': symbol,
+            'Price': table.Price[-1],
+            'Signal_div': table['signal_div'][-1],
+            'Signal_ds': table['signal_ds'][-1],
+            'Signal_cor': table['signal_cor'][-1],
+            'Signal_ci': table['signal_ci'][-1],
+            'Signal_idx': table['signal_idx'][-1],
+            'Multiplier': int(table['Multiplier'][-1]),
+            'Signal': int(table['Signal'][-1])
+        })
+    portfolio = pd.DataFrame(data)
+    portfolio.sort_values(by='Multiplier', ascending=False, inplace=True)
+    portfolio.set_index('Symbols', inplace=True)
+    return portfolio
+
+
+def style_table(portfolio):
+    styled_table = portfolio.style.set_table_styles([
+        {'selector': 'th', 'props': [('text-align', 'center')]},
+        {'selector': 'td', 'props': [('text-align', 'center')]},
+    ]).applymap(lambda x: 'color: green' if x < 0 else 'color: black')
+
+    html_table = f"""
+    <html>
+    <head>
+    <style>
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }}
+        th {{
+            background-color: #4CAF50;
+            color: white;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f2f2f2;
+        }}
+        tr:hover {{
+            background-color: #ddd;
+        }}
+    </style>
+    </head>
+    <body>
+    {styled_table.to_html()}
+    </body>
+    </html>
+    """
+    return html_table
+
+
+
+# Create portfolio
+portfolio = create_portfolio(df)
+#%%
+
+# Style table and convert to HTML
+
+html_table = style_table(portfolio)
+now = datetime.datetime.now()
+
+# Format the timestamp to only include the date and replace colons with underscores
+formatted_now = now.strftime('%Y-%m-%d_%H_%M_%S')
+
+# Save CSV to file
+df.to_csv(
+    f'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/user_portfolio/user_portfolio_{formatted_now}.csv')
+
+# Save HTML table to file
+with open('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/user_portfolio.html', 'w') as f:
+    # Assuming you want to write the `html_table` to the file
+    f.write(html_table)
+    f.write(html_table)
+#%%
+mult_bull = portfolio[portfolio.Multiplier > 0]
+mult_bear = portfolio[portfolio.Multiplier < 0]
+mult_bear.Multiplier = mult_bear.Multiplier * -1
+bearish = mult_bear.Multiplier.sum()
+bullish = mult_bull.Multiplier.sum()
+summ = bearish + bullish
+wp = np.round(bearish/summ * 100, 2)
+wb = np.round(bullish/summ * 100, 2)
+weights = pd.DataFrame({"Bearish Portfolio": [wp], "Bullish Portfolio": [wb]})
+print(weights)
+weights.to_csv("db/weights_portfolio.csv")
+cash = 100000 / 0.5
+cash
+
+#%%
+
+fig = go.Figure(data=[go.Pie(labels=mult_bull.index, values=mult_bull.Multiplier,
+                textinfo='label+percent', insidetextorientation='radial')])
+fig.update_layout(title_text='Bullish Portfolio',
+                  template='plotly_dark', font=dict(size=20))
+pyo.plot(fig, filename='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/pie_table_long.html', auto_open=True)
+fig.show()
+#%%
+fig2 = go.Figure(data=[go.Pie(labels=mult_bear.index, values=mult_bear.Multiplier,
+                 textinfo='label+percent', insidetextorientation='radial')])
+fig2.update_layout(title_text='Bearish Portfolio',
+                   template='plotly_dark', font=dict(size=20))
+pyo.plot(fig2, filename='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/pie_table_short.html', auto_open=True)
+fig2.show()
+
+
+#%%
+
+portfolio
+df
+#%%
+pivot_table 
+# df.loc[['MultplierSum'] 
+       
+plot_multiplier=multiplier_sum.iloc[-400:]
+#%%
+ax = plot_multiplier.plot(figsize=(14, 6))
+ax.axhline(65, color='r', linestyle='--')  # Add horizontal line at y=70
+ax.axhline(0, color='w', linestyle='-')  # Add horizontal line at y=70
+ax.axhline(-65, color='g', linestyle='--')  # Add horizontal line at y=-70
+fig2 = plot_multiplier.plot(
+    ax=ax, secondary_y='MultiplierSum', style='--', title="QI Custom Hourly Weightings Indicator")
+ax.figure.savefig(
+    "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/total_weightings_indicator.jpg")
+# Create a line plot of total_weightings
+
+
+
+#%%
+plot_signals = signal_sum.iloc[-400:]
+plot_signals = pd.DataFrame(plot_signals, index=plot_signals.index, columns=['SignalSum'])
+# %%
+plot_signals
+#%%
+ax = plot_signals.plot(figsize=(14, 6))
+fig = go.Figure()
+fig.update_layout(
+    autosize=False,
+    width=1200,
+    height=600,
+)
+fig.add_trace(go.Scatter(x=plot_signals.index,
+              y=plot_signals['SignalSum'], mode='lines', name='total_weightings'))
+
+# Add horizontal lines
+fig.add_shape(type="line", x0=plot_signals.index.min(), x1=plot_signals.index.max(
+), y0=15, y1=15, line=dict(color="Red", width=1, dash="dash"))
+fig.add_shape(type="line", x0=plot_signals.index.min(
+), x1=plot_signals.index.max(), y0=0, y1=0, line=dict(color="White", width=1))
+fig.add_shape(type="line", x0=plot_signals.index.min(), x1=plot_signals.index.max(
+), y0=-15, y1=-15, line=dict(color="Green", width=1, dash="dash"))
+
+# Apply the custom dark theme
+fig.update_layout(template='custom_dark',
+                  title="QI Custom Hourly Weightings Indicator")
+
+# Save the figure as an HTML file
+pio.write_html(
+    fig, 'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/total_signals_indicator.html')
+
+
+# %%
+portfolio

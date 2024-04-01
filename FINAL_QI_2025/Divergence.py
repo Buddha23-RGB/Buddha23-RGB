@@ -91,8 +91,6 @@ class DivergenceIndexTrader:
 
 # %%
 
-
-
 # Initialize DivergenceIndexTrader
 divergence_trader = DivergenceIndexTrader(start_hourly, now, "1h", windows=40)
 
@@ -126,6 +124,4 @@ for symbol in symbols:
     df_final.to_csv(table_path)
 # %%
 
-
-# %%
-
+df_final 
