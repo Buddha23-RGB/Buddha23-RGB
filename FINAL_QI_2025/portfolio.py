@@ -402,7 +402,7 @@ fig.add_shape(type="line", x0=plot_signals.index.min(), x1=plot_signals.index.ma
 # Apply the custom dark theme
 fig.update_layout(template='custom_dark',
                   title="QI Custom Hourly Weightings Indicator")
-
+fig.show()
 # Save the figure as an HTML file
 pio.write_html(
     fig, 'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/total_signals_indicator.html')

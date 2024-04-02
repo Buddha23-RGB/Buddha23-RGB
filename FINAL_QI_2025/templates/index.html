@@ -3,157 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Stock Analytics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <meta name="description" content="">
+    <title>QuantInvests' Investment App</title>
+
     <!-- Include Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
+    <!-- Include Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
->
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/favicon.ico" rel="icon">
     <link rel="stylesheet" type="text/css" href="static/css/style.css">
+
+    <!-- Favicon -->
+    <link href="/static/favicon.ico" rel="icon">
+
+    <!-- Include jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        h1,
-        h2 {
-            font-family: 'Great Vibes', cursive;
-            color: lightgreen;
-        }
-
-        iframe {
-            border: none;
-        }
-
-        div {
-            margin-bottom: 100px;
-        }
-
-        .plotly-graph-container {
-            width: 90%;
-            height: 500px;
-        }
-
-        header,
-        footer {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-
-        nav {
-            background-color: #f2f2f2;
-            padding: 10px;
-        }
-
-        nav ul {
-            list-style-type: none;
-        }
-
-        nav ul li a {
-            display: inline-block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-
-        #main-content {
-            padding: 15px;
-        }
-
-        #sidebar {
-            float: left;
-            width: 20%;
-            background-color: #e7e7e7;
-            padding: 10px;
-        }
-
-        #content-area {
-            float: right;
-            width: 75%;
-        }
-
-        .input-form {
-            margin-bottom: 20px;
-        }
-
-        .input-form label {
-            display: block;
-        }
-
-        .input-form input {
-            margin-bottom: 10px;
-        }
-
-        .recommendation-area {
-            background-color: #e7e7e7;
-            padding: 10px;
-            margin-top: 20px;
-        }
-
-        .clear {
-            clear: both;
-        }
-
-        .navbar {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #333;
-        }
-
-        .navbar li {
-            float: left;
-        }
-
-        .navbar li a {
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-        }
-
-        .navbar li a:hover {
-            background-color: #111;
-        }
-    </style>
-    <title>QuantInvests' Investment App</title>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
-
 <body>
-    <header>
-        <h1>QuantInvests Investment App</h1>
-    </header>
-</body>
-<nav class="navbar">
-    <ul>
-        <li><a href="{{ url_for('index') }}">Home</a></li>
-        <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
-        <li><a href="{{ url_for('about') }}">About</a></li>
-        <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
-        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
-        <li><a href="{{ url_for('contact') }}">Contact</a></li>
-    </ul>
-</nav>
 <header class="masthead mb-auto" style="display: flex; align-items: center; margin-bottom: 0;">
     <img class="logo-img" src="/static/LOGO_Flask.png" alt="Where the Quant Invests for you!"
         style="width: 100px; height: auto;">
@@ -164,6 +37,20 @@
         <p><small>This financial widget was built by Joe Chamoun.</small></p>
     </div>
 </header>
+
+<nav class="navbar">
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('portfolio') }}">Portfolio</a></li>
+        <li><a href="{{ url_for('about') }}">About</a></li>
+        <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
+        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+    </ul>
+</nav>
+//////!SECTION ANCHOR -
+
+
 <section>
     <section style="text-align: center; background-color: #f8f9fa; padding: 10px;">
         <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0"></div>
@@ -227,9 +114,27 @@
                 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
                     <pre><span style="color:green; font-size: 30px;">Bullish Portfolio: {{ bullish }}%</span></pre>
                     <pre><span style="color:red; font-size: 30px;">Bearish Portfolio: {{ bearish }}%</span></pre>
-                    <iframe id="tables" src="/tables/table_css.html" height="1050" width="770"></iframe>
+                    <iframe id="tables" src="/templates/tables/table_css.html" height="1050" width="770"></iframe>
                 </div>
     </section>
+                <!-- Main content area -->
+            <div class="column">
+                {%block body%}
+                {%endblock%}
+                <!-- Your tables go here -->
+                {% for table in tables %}
+                {{ table|safe }}
+                {% endfor %}
+                <div class="container">
+                    <h2>Price Chart</h2>
+                    <img src="{{ price_chart }}" alt="Price Chart">
+                    <h2>Trending Chart</h2>
+                    <img src="{{ trending_chart }}" alt="Trending Chart">
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
     </main>
     </div>
 

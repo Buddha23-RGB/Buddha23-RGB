@@ -930,3 +930,59 @@ def addNewStock():
 # This route is used when a user adds a new currency. Info is submitted to server via POST.
 # Removed Get method. Design Principle from John Healy. Use only what you need.
 
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String, db.ForeignKey('user.id'))
+    symbol = db.Column(db.String)
+    shares = db.Column(db.Integer)
+    price = db.Column(db.Float)
+    transaction_type = db.Column(db.String)
+    date = db.Column(db.DateTime)
+    multiplier = db.Column(db.Float)
+
+    user = db.relationship('User', backref='transactions')
+
+@app.route('/portfolio', methods=['GET', 'POST'])
+@login_required
+def portfolio():
+    form = TransactionForm()
+    if form.validate_on_submit():
+        transaction = Transaction(
+            user_id=current_user.id,
+            symbol=form.symbol.data,
+            shares=form.shares.data,
+            price=form.price.data,
+            transaction_type=form.transaction_type.data,
+            multiplier=form.multiplier.data
+        )
+        db.session.add(transaction)
+        db.session.commit()
+        flash('Transaction added!')
+        return redirect(url_for('portfolio'))
+    return render_template('portfolio.html', form=form)
+
+@app.route('/portfolio/<username>', methods=['GET', 'POST'])
+def user_portfolio(username):
+    form = PortfolioForm()
+    if form.validate_on_submit():
+        # Handle the form submission
+        # Assuming you have a User model with a username field
+        user = User.query.filter_by(username=username).first()
+        if user:
+            # Assuming you want to add a new transaction for this user
+            transaction = Transaction(
+                user_id=user.id,
+                symbol=form.symbol.data,
+                shares=form.shares.data,
+                price=form.price.data,
+                transaction_type=form.transaction_type.data,
+                multiplier=form.multiplier.data
+            )
+            db.session.add(transaction)
+            db.session.commit()
+            flash('Transaction added for user!')
+        else:
+            flash('User not found!')
+        return redirect(url_for('user_portfolio', username=username))
+    return render_template('user_portfolio.html', form=form)
