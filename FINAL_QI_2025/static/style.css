@@ -1,0 +1,260 @@
+ {
+     box-sizing: border-box;
+ }
+
+ body {
+     align-items: center;
+     background-color: #f4f4f4;
+     color: #FFFFFF;
+     display: flex;
+     flex-direction: column;
+     font-family: Arial, sans-serif;
+     margin: 0;
+     padding: 0;
+ }
+
+ h1,
+ h2 {
+     color: lightgreen;
+     font-family: 'Great Vibes', cursive;
+ }
+
+ iframe {
+     border: none;
+ }
+
+ div {
+     margin-bottom: 100px;
+ }
+
+ .plotly-graph-container {
+     height: 500px;
+     width: 90%;
+ }
+
+ header,
+ footer {
+     background-color: #333;
+     color: white;
+     padding: 10px;
+     text-align: center;
+ }
+
+ nav {
+     background-color: #f2f2f2;
+     padding: 10px;
+ }
+
+ nav ul {
+     list-style-type: none;
+ }
+
+ nav ul li a {
+     color: white;
+     display: inline-block;
+     padding: 14px 16px;
+     text-align: center;
+     text-decoration: none;
+ }
+
+ #main-content {
+     padding: 15px;
+ }
+
+ #sidebar {
+     background-color: #e7e7e7;
+     float: left;
+     padding: 10px;
+     width: 20%;
+ }
+
+ #content-area {
+     float: right;
+     width: 75%;
+ }
+
+ .input-form {
+     margin-bottom: 20px;
+ }
+
+ .input-form label {
+     display: block;
+ }
+
+ .input-form input {
+     margin-bottom: 10px;
+ }
+
+ .recommendation-area {
+     background-color: #e7e7e7;
+     margin-top: 20px;
+     padding: 10px;
+ }
+
+ .clear {
+     clear: both;
+ }
+
+ .navbar {
+     background-color: #333;
+     list-style-type: none;
+     margin: 0;
+     overflow: hidden;
+     padding: 0;
+ }
+
+ .navbar li {
+     float: left;
+ }
+
+ .navbar li a {
+     color: white;
+     display: block;
+     padding: 14px 16px;
+     text-align: center;
+     text-decoration: none;
+ }
+
+ .navbar li a:hover {
+     background-color: #111;
+ }
+
+ .columns {
+     display: flex;
+ }
+
+ .column {
+     flex: 1;
+ }
+
+ .column.is-9 {
+     flex: 9;
+ }
+
+ .column.is-3 {
+     flex: 3;
+ }
+
+ .input {
+     box-sizing: border-box;
+     margin: 0.5em 0;
+     padding: 0.5em;
+     width: 100%;
+ }
+
+ .button.is-primary {
+     background-color: #00d1b2;
+     border: none;
+     color: white;
+     cursor: pointer;
+     padding: 0.5em 1em;
+     text-decoration: none;
+ }
+
+ .container {
+     margin-top: 10px;
+ }
+
+ .table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle {
+     border-collapse: collapse;
+     width: 100%;
+ }
+
+ .table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle th,
+ .table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle td {
+     border: 1px solid #ddd;
+     padding: 8px;
+ }
+
+ .table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle tr:nth-child(even) {
+     background-color: #f2f2f2;
+ }
+
+ .table.is-bordered.is-striped.is-narrow.is-hoverable.is-fullwidthle tr:hover {
+     background-color: #ddd;
+ }
+
+ .slideshow-container {
+     margin: auto;
+     max-width: 1000px;
+     position: relative;
+ }
+
+ .mySlides {
+     display: none;
+ }
+
+ .prev,
+ .next {
+     border-radius: 0 3px 3px 0;
+     color: white;
+     cursor: pointer;
+     font-size: 18px;
+     font-weight: bold;
+     margin-top: -22px;
+     padding: 16px;
+     position: absolute;
+     top: 50%;
+     transition: 0.6s ease;
+     user-select: none;
+     width: auto;
+ }
+
+ .next {
+     border-radius: 3px 0 0 3px;
+     right: 0;
+ }
+
+ .prev:hover,
+ .next:hover {
+     background-color: rgba(0, 0, 0, 0.8);
+ }
+
+ .text {
+     bottom: 8px;
+     color: #f2f2f2;
+     font-size: 15px;
+     padding: 8px 12px;
+     position: absolute;
+     text-align: center;
+     width: 100%;
+ }
+
+ .numbertext {
+     color: #f2f2f2;
+     font-size: 12px;
+     padding: 8px 12px;
+     position: absolute;
+     top: 0;
+ }
+
+ .dot {
+     background-color: #bbb;
+     border-radius: 50%;
+     cursor: pointer;
+     display: inline-block;
+     height: 15px;
+     margin: 0 2px;
+     transition: background-color 0.6s ease;
+     width: 15px;
+ }
+
+ .active,
+ .dot:hover {
+     background-color: #717171;
+ }
+
+ .fade {
+     animation-duration: 1.5s;
+     animation-name: fade;
+ }
+
+ @keyframes fade {
+     from {
+         opacity: .4
+     }
+
+     to {
+         opacity: 1
+     }
+ }

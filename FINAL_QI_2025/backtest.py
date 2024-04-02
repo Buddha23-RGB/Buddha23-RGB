@@ -1,92 +1,170 @@
 #%%
-!pip install yahoo-fin
-
-# %% [markdown]
-# ## Code the breakout backtesting function
-# %%
-
-import commons 
-from commons import *
-from datetime import datetime
-from sqlalchemy import create_engine
-import plotly.offline as pyo
-import plotly.express as px
-from distutils.version import LooseVersion
-from plotly import optional_imports
-import plotly.io as pio
-import os
-import yfinance as yf
-from flask import Flask, render_template, request
-from IPython.display import HTML
-from jinja2 import Template
-from numpy.core.fromnumeric import squeeze
-from PIL import Image
-from pydantic import BaseModel
-from scipy import integrate, stats
-from setuptools import find_packages, setup
-from sqlalchemy import (Boolean, Column, ForeignKey, Integer, Numeric, String,
-                        create_engine)
-from sqlalchemy.orm import Session, relationship
-import copy
-import csv
-import datetime
-import datetime as dt
-import json
-import os
-import warnings
-from datetime import date
-from urllib.parse import urljoin
-import matplotlib
-import matplotlib.cm as cm
-import matplotlib.dates as mdates
-import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
-import seaborn as sns
-import plotly.io as plt_io
-import python_utils
-import plotly.graph_objects as go
-from sqlalchemy import inspect
-from sqlalchemy import create_engine, text
-import pandas as pd
-sns.set_style('whitegrid')
-
-pd.core.common.is_list_like = pd.api.types.is_list_like
-
-style = matplotlib.style.use('dark_background')
-plt.style.use('dark_background')
-plt_io.templates["custom_dark"] = plt_io.templates["plotly_dark"]
-
-plt_io.templates["custom_dark"]['layout']['paper_bgcolor'] = '#30404D'
-plt_io.templates["custom_dark"]['layout']['plot_bgcolor'] = '#30404D'
-
-plt_io.templates['custom_dark']['layout']['yaxis']['gridcolor'] = '#4f687d'
-plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
-
-windows = [15, 20, 25, 30, 40, 50, 80, 90, 100, 125, 150, 180, 240]
-
-engine = create_engine('sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db')
-connection = engine.connect()
-
-symbols = []
-stock_ids = {}
 
 def figures_to_html(figs, filename):
-    with open(filename, 'w') as dashboard:
-        dashboard.write("<html><head></head><body>\n")
-        for fig in figs:
-            inner_html = fig.to_html().split('<body>')[1].split('</body>')[0]
-            dashboard.write(inner_html)
+    dashboard.write(inner_html)
 
 def calculate_positions(df, starting_capital):
     positions = pd.DataFrame(index=df.index)
 
     positions =df['Signal'] * df['Multiplier'] * starting_capital
+    positions = df['Signal'] * df['Multiplier'] * starting_capital
     return positions
 
+
+
+def create_portfolio(df):
+    data = []
+    df['Price']=df.Close
+    for symbol in commons.short_list:
+        table = df.loc[symbol]
+
+        fig = go.Figure()
+        fig.update_layout(autosize=False, width=1200, height=600)
+        fig.add_trace(go.Scatter(x=table.index,
+                                 y=table['Price'], mode='lines', name='Price'))
+        fig.add_trace(go.Scatter(x=table.index,
+                                 y=table['Multiplier'], mode='lines', name='Multiplier', yaxis='y2'))
+        fig.update_layout(yaxis2=dict(overlaying='y', side='right'))
+        fig.update_layout(template='custom_dark')
+        pio.write_html(
+            fig, f'C:/users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/{symbol}.html')
+        data.append({
+            'Symbols': symbol,
+            'Price': table.Close[-1],
+            'Sig_div': table['signal_div'][-1],
+            'Sig_ds': table['signal_ds'][-1],
+            'Sig_cor': table['signal_cor'][-1],
+            'Sig_ci': table['signal_ci'][-1],
+            'Sig_idx': table['signal_idx'][-1],
+            'Multiplier': int(table['Multiplier'][-1]),
+            'Signal': int(table['Signal'][-1])
+        })
+    portfolio = pd.DataFrame(data)
+    portfolio.sort_values(by='Multiplier', ascending=False, inplace=True)
+    portfolio.set_index('Symbols', inplace=True)
+    return portfolio
+
+
+warnings.filterwarnings('ignore')
+
+
+def style_table(portfolio):
+    styled_table = portfolio.style.set_table_styles([
+        {'selector': 'th', 'props': [('text-align', 'center')]},
+        {'selector': 'td', 'props': [('text-align', 'center')]},
+    ]).applymap(lambda x: 'color: green' if x < 0 else 'color: black')
+
+    html_table = f"""
+    <html>
+    <head>
+    <style>
+        body {{
+            background-color: #000000;
+        }}
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            color: #FFFFFF;
+        }}
+        th {{
+            background-color: #4CAF50;
+            color: white;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f2f2f2;
+        }}
+        tr:hover {{
+            background-color: #ddd;
+        }}
+    </style>
+    </head>
+    <body>
+    {styled_table.to_html()}
+    </body>
+    </html>
+    """
+    return html_table
+
+
+# Load data
+
+
+#%%
+symbol = "AAPL"
+table_file_path = os.path.join(table_path, f"{symbol}_divergence.csv")
+df = pd.read_csv(table_file_path)
+
+dd=final_table(df)
+dd
+#%%
+# Use the table_path from the configuration file
+
+
+column_names = ['symbol', 'signal_idx', 'signal_ci',
+                'signal_div', 'signal_ds', 'signal_cor', 'Multiplier', 'Signal', 'Price']
+table = pd.DataFrame(table, columns=column_names, index=table.index)
+table
+
+#%%
+# Create portfolio
+portfolio = create_portfolio(df)
+
+# Style table and convert to HTML
+html_table = style_table(portfolio)
+
+# Save HTML table to file
+with open('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/user_portfolio.html', 'w') as f:
+    f.write(html_table)
+# %%
+
+portfolio
+# %%
+
+mult_bull = df[df.Multiplier > 0]
+mult_bear = df[df.Multiplier < 0]
+
+
+# %%
+mult_bear.Multiplier = mult_bear.Multiplier * -1
+bearish = mult_bear.Multiplier.sum()
+bullish = mult_bull.Multiplier.sum()
+summ = bearish + bullish
+
+wp = np.round(bearish/summ * 100, 2)
+wb = np.round(bullish/summ * 100, 2)
+
+
+weights = pd.DataFrame({"Bearish Portfolio": [wp], "Bullish Portfolio": [wb]})
+print(weights)
+weights.to_csv("db/weights_portfolio.csv")
+# %%#%%
+pivot_table = df['Multiplier'].unstack(level='Ticker')
+pivot_table.fillna(0, inplace=True)
+# %%
+signal_pivot = df['Signal'].unstack(level='Ticker')
+multiplier_sum = pivot_table.sum(axis=1)
+signal_sum = signal_pivot.sum(axis=1)
+df = df.reset_index(level='Ticker')
+df['MultiplierSum'] = multiplier_sum
+df['SignalSum'] = signal_sum
+
+# %%
+
+df.reset_index(inplace=True)
+df.set_index(['Ticker', 'Datetime'], inplace=True)
+
+df
+df.to_csv(f"{final_path}/main_data.csv")
+pivot_table.to_csv(f"{final_path}/multiplier_data.csv")
+# %%
+df = get_final_data(commons.short_list, table_path)
+df.fillna(0, inplace=True)
+df
 
 final_path= "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/final_tables"
 symbol='TSLA'
@@ -145,6 +223,8 @@ for table_name in table_names:
 # Concatenate all the DataFrames in the list into a single DataFrame
 portfolio = pd.concat(portfolio)
 portfolio
+df = get_final_data(commons.short_list)
+df.fillna(0, inplace=True)
 
 for symbol in commons.short_list:
     table = final_table(symbol)
@@ -152,7 +232,15 @@ for symbol in commons.short_list:
     table.to_sql(symbol, engine, if_exists='replace')
     symbols.append(symbol)
     stock_ids[symbol] = table['id'].iloc[0]
+pivot_table = df['Multiplier'].unstack(level='Ticker')
+pivot_table.fillna(0, inplace=True)
 
+signal_pivot = df['Signal'].unstack(level='Ticker')
+multiplier_sum = pivot_table.sum(axis=1)
+signal_sum = signal_pivot.sum(axis=1)
+df = df.reset_index(level='Ticker')
+df['MultiplierSum'] = multiplier_sum
+df['SignalSum'] = signal_sum
 
 #%%
 # Create inspector
@@ -173,6 +261,8 @@ for table_name in table_names:
     # Get column names for the table
     columns = inspector.get_columns(table_name)
     column_names = [column['name'] for column in columns]
+df.reset_index(inplace=True)
+df.set_index(['Ticker', 'Datetime'], inplace=True)
 
     # Check if 'id' is in column names, if not replace it with the correct column name
     if 'id' not in column_names:
@@ -180,6 +270,9 @@ for table_name in table_names:
         correct_column_name = 'symbol'
     else:
         correct_column_name = 'id'
+df
+df.to_csv(f"{final_path}/main_data.csv")
+# portfolio = pd.DataFrame(data)
 
     # Query to get the last row from the table
     query = f"SELECT * FROM {table_name} ORDER BY {correct_column_name} DESC LIMIT 1"
@@ -194,6 +287,11 @@ for table_name in table_names:
 portfolio = pd.concat(portfolio)
 
 #%%
+# portfolio.sort_values(by='Multiplier', ascending=False, inplace=True)
+# #%%
+# portfolio.set_index('Symbols', inplace = True)
+# #%%
+# html_table = portfolio.to_html('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/user_portfolio.html')
 
 portfolio
 #%%
@@ -201,8 +299,81 @@ portfolio
 user_info['portfolio'] = portfolio
 # user_info['portfolio'] = portfolio
 #%%
+import pandas as pd
 
 
+def create_portfolio(df):
+    data = []
+    for symbol in commons.short_list:
+        table = df.loc[symbol]
+        data.append({
+            'Symbols': symbol,
+            'Price': table.Price[-1],
+            'Signal_div': table['signal_div'][-1],
+            'Signal_ds': table['signal_ds'][-1],
+            'Signal_cor': table['signal_cor'][-1],
+            'Signal_ci': table['signal_ci'][-1],
+            'Signal_idx': table['signal_idx'][-1],
+            'Multiplier': int(table['Multiplier'][-1]),
+            'Signal': int(table['Signal'][-1])
+        })
+    portfolio = pd.DataFrame(data)
+    portfolio.sort_values(by='Multiplier', ascending=False, inplace=True)
+    portfolio.set_index('Symbols', inplace=True)
+    return portfolio
+
+
+def style_table(portfolio):
+    styled_table = portfolio.style.set_table_styles([
+        {'selector': 'th', 'props': [('text-align', 'center')]},
+        {'selector': 'td', 'props': [('text-align', 'center')]},
+    ]).applymap(lambda x: 'color: green' if x < 0 else 'color: black')
+
+    html_table = f"""
+    <html>
+    <head>
+    <style>
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+            font-family: Arial, sans-serif;
+        }}
+        th {{
+            background-color: #4CAF50;
+            color: white;
+        }}
+        th, td {{
+            border: 1px solid #ddd;
+            padding: 8px;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f2f2f2;
+        }}
+        tr:hover {{
+            background-color: #ddd;
+        }}
+    </style>
+    </head>
+    <body>
+    {styled_table.to_html()}
+    </body>
+    </html>
+    """
+    return html_table
+
+# Load data
+df = get_final_data(commons.short_list)
+df.fillna(0, inplace=True)
+
+# Create portfolio
+portfolio = create_portfolio(df)
+
+# Style table and convert to HTML
+html_table = style_table(portfolio)
+
+# Save HTML table to file
+with open('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/user_portfolio.html', 'w') as f:
+    f.write(html_table)
 #%%
 
 #%%
@@ -683,6 +854,7 @@ fig2.update_layout(title_text='Bearish Portfolio',
                    template='plotly_dark', font=dict(size=20))
 pyo.plot(fig2, filename='C:/Users/joech/source/repos/quantinvests_2025/app/static/pie_table_short.html', auto_open=True)
 fig2.show()
+# ///continue from here
 #%%
 
 print(f"Bullish Portfolio: {wb}%")
@@ -775,3 +947,85 @@ pio.write_html(
 fig.show()
 # %%
 portfolio
+# Display the last 7 rows of the table
+
+# ///continue from here
+# %%
+dfs = {}
+
+symbols = ss.short_list
+for symbol in symbols:
+
+    df = pd.read_csv(
+        f"C:/Users/joech/source/repos/quantinvests_2025/app/db/portfolio_tables/{symbol}.csv", index_col='Datetime')
+    dfs[symbol] = pd.concat([df])
+
+# %%
+portfolio = pd.DataFrame()
+for symbol in symbols:
+    portfolio[symbol] = dfs[symbol]["Multiplier"].replace(
+        0, pd.NA).fillna(method='ffill')
+
+# %%
+portfolio['total_weightings'] = portfolio.sum(axis=1)
+
+total_weight = abs(portfolio)
+total_weight
+# %%
+portfolio['abs_total_weightings'] = total_weight[::-1].sum(axis=1)
+
+# %%
+portfolio.to_csv(
+    "C:/Users/joech/source/repos/quantinvests_2025/app/db/portfolio_tables/total_weightings.csv")
+# portfolio = pd.read_csv("/workspaces/quantinvests_2025/app/db/multiplier_data.csv")
+#%%
+
+def get_daily_data(tickers):
+
+    def data(ticker):
+        return pd.read_csv(f"C:/Users/joech/source/repos/quantinvests_2025/app/db/portfolio_tables/{ticker}.csv", index_col='Datetime')
+    datas = map(data, tickers)
+    return (pd.concat(datas, keys=tickers, names=['Ticker', 'Datetime']))
+
+
+symbols = ss.short_list
+db = get_daily_data(symbols)
+db.round(2)
+db.to_csv(
+    "C:/Users/joech/source/repos/quantinvests_2025/app/db/portfolio_tables/final_signal_table.csv")
+
+db.replace(0, pd.NA, inplace=True)
+db.fillna(method='ffill', inplace=True)
+db.to_sql("signal_table", engine, if_exists="replace")
+
+#%%
+# Create a line plot of total_weightings
+fig = go.Figure()
+fig.update_layout(
+    autosize=False,
+    width=1200,
+    height=600,
+)
+fig.add_trace(go.Scatter(x=portfolio.index,
+              y=portfolio['total_weightings'], mode='lines', name='total_weightings'))
+
+# Add horizontal lines
+fig.add_shape(type="line", x0=portfolio.index.min(), x1=portfolio.index.max(
+), y0=70, y1=70, line=dict(color="Red", width=1, dash="dash"))
+fig.add_shape(type="line", x0=portfolio.index.min(
+), x1=portfolio.index.max(), y0=0, y1=0, line=dict(color="White", width=1))
+fig.add_shape(type="line", x0=portfolio.index.min(), x1=portfolio.index.max(
+), y0=-70, y1=-70, line=dict(color="Green", width=1, dash="dash"))
+
+# Apply the custom dark theme
+fig.update_layout(template='custom_dark',
+                  title="QI Custom Hourly Weightings Indicator")
+
+# Save the figure as an HTML file
+pio.write_html(
+    fig, 'C:/Users/joech/source/repos/quantinvests_2025/app/templates/charts/total_weightings_indicator.html')
+
+fig.show()
+# %%
+portfolio
+# Display the last 7 rows of the table

@@ -1,6 +1,6 @@
 {
     "python.testing.pytestArgs": [
-        "Buddha23-RGB-main"
+        "."
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true

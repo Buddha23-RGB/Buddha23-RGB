@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>About - Quant Invests</title>
+    <style>
+        body {
+            font-family: 'Fira Sans', sans-serif;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Great Vibes', cursive;
+            color: lightgreen;
+        }
+
+        .center-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .center-content p {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .c11 {
+            text-align: center;
+            font-weight: 400;
+            vertical-align: baseline;
+            text-decoration-skip-ink: none;
+            font-size: 26pt;
+            font-family: "Great Vibes";
+            font-style: italic;
+        }
+
+        /* Style for the back button */
+        .back-button {
+            margin-top: 20px;
+        }
+
+        .back-button a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            /* Green background */
+            color: white;
+            /* White text */
+            text-decoration: none;
+            /* No underline */
+            border: 2px solid #4CAF50;
+            /* Green border */
+            border-radius: 5px;
+            /* Rounded corners */
+            transition: background-color 0.3s, color 0.3s;
+            /* Smooth transition for hover effect */
+        }
+
+        .back-button a:hover {
+            background-color: white;
+            /* White background on hover */
+            color: #4CAF50;
+            /* Green text on hover */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="center-content">
+        <h1 class="c11"><span class="c11">Quant Invests</span></h1>
+        <h2><span class="c11">Where the <em>Quant Invests</em> For You!</span> </h2>
+        <p>At Quant Invests, we leverage advanced quantitative strategies and machine learning algorithms to manage your
+            investments. Our goal is to maximize your returns while minimizing risk. Trust us to make the most out of
+            your investments!</p>
+        <h3>Author:</h3>
+        <p>Joe Chamoun</p>
+        <p>403-463-8072</p>
+        <h3>Website:</h3>
+        <p><a href="http://quantinvests.com">quantinvests.com</a></p>
+        <h3>Email:</h3>
+        <p><a href="mailto:Joechamoun23@gmail.com">Joechamoun23@gmail.com</a></p>
+        <h3>LinkedIn:</h3>
+        <p><a href="https://ca.linkedin.com/company/quantinvests">Quant Invests</a></p>
+        <!-- Back button -->
+    <div class="back-button">
+        <a href="{{ url_for('home') }}">&larr; Back to Home</a>
+    </div>
+</body>
+
+</html>
