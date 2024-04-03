@@ -4,6 +4,22 @@
 # !pip install Flask-Login
 # #%%
 # %pip install flask-login
+from commons import *
+import yfinance as yf
+import plotly.graph_objects as go
+import plotly.io as plt_io
+import matplotlib.style
+import matplotlib.pyplot as plt
+import seaborn as sns
+import json
+import pandas as pd
+from datetime import datetime
+from sqlalchemy.orm import Session, relationship
+from sqlalchemy import create_engine, text, inspect
+from werkzeug.security import generate_password_hash
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, url_for
 from dotenv import load_dotenv
 import os
 import flask_login
@@ -12,24 +28,6 @@ import flask_login
 # Load environment variables from .env file if it exists
 load_dotenv(
     "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_sqlalchemy import SQLAlchemy
-
-from flask_login import LoginManager, login_user, logout_user, login_required
-from werkzeug.security import generate_password_hash
-from sqlalchemy import create_engine, text, inspect
-from sqlalchemy.orm import Session, relationship
-from datetime import datetime
-import pandas as pd
-import json
-import os
-import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib.style
-import plotly.io as plt_io
-import plotly.graph_objects as go
-import yfinance as yf
-from commons import *
 sns.set_style('whitegrid')
 pd.core.common.is_list_like = pd.api.types.is_list_like
 
@@ -55,35 +53,23 @@ short_list = config['short_list']
 windows = config['windows']
 final_path = config['final_path']
 
-DB_FILE_PATH = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/stock.db"
-DB_URI = f"sqlite:///{DB_FILE_PATH}"
+
 
 db = SQLAlchemy()
 
 
 def create_app():
+    DB_FILE_PATH = os.path.join(root_dir, 'db', 'stock.db')
+    DB_URI = f"sqlite:///{DB_FILE_PATH}"
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
     app.config['SECRET_KEY'] = os.getenv(
         'SECRET_KEY', 'your_default_secret_key')
-    login_manager = flask_login.LoginManager()
     db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'login'
-
     return app
 
 
 app = create_app()
-
-
-login_manager.init_app(app)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    from models import User  # Import here to avoid circular dependency
-    return User.query.get(int(user_id))
 
 
 @app.errorhandler(404)
@@ -95,40 +81,30 @@ def page_not_found(e):
 def internal_server_error(e):
     return render_template('500.html'), 500
 
-# @app.route("/register", methods=['GET', 'POST'])
-# def register():
-#     # Your registration logic here
-
-# @app.route("/login", methods=['GET', 'POST'])
-# def login():
-#     # Your login logic here
-
-@app.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'success')
-    return redirect(url_for('homepage'))
 
 @app.route('/disclaimer')
 def disclaimer():
     return render_template('disclaimer.html')
 
+
 @app.route('/privacy')
 def privacy():
     return render_template('privacy.html')
+
 
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
 
-@app.route('/about', methods=['GET'])
+
+@app.route('/about')
 def about():
     return render_template('about.html')
 
-@app.route('/chart')
-def chart():
-    return render_template('chart.html')
+
+# @app.route('/chart')
+# def chart():
+#     return render_template('chart.html')
 
 
 def render_table(symbol):
@@ -140,9 +116,11 @@ def render_table(symbol):
             data=data.to_dict(orient='records')
         )
 
+
 @app.route('/tables/<symbol>.html')
 def table(symbol):
     return render_table(symbol)
+
 
 @app.route('/data', methods=['POST', 'GET'])
 def data():
@@ -161,16 +139,17 @@ def data():
         return render_template('index.html', form_data=form_data)
 
 
+
 @app.route("/")
 def index():
     from plotly.offline import plot
     portfolio = pd.read_csv(
-        "C:/Users/joech/source/repos/quantinvests_2025/app/db/portfolio_tables/total_weightings.csv", index_col=[0], parse_dates=True)
+        os.path.join(root_dir, 'db', 'final_tables', 'final_table.csv'), index_col=[0], parse_dates=True)
     portfolio = portfolio.iloc[-400:]
     # Create  trace for total_weightings
     trace1 = go.Scatter(
         x=portfolio.index,
-        y=portfolio['total_weightings'],
+        y=portfolio['MultiplierSum'],
         mode='lines',
         name='total_weightings'
     )
@@ -226,39 +205,12 @@ def index():
     # Convert the figure to a div string
     div = plot(fig, output_type='div')
     weights = pd.read_csv(
-        "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/weights_portfolio.csv")
+        os.path.join(root_dir, 'db', 'weights_portfolio.csv'))
     return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
 
 
-# @app.route('/submit', methods=['POST'])
-# def submit():
-#     # Extract the form data
-#     starting_capital = request.form.get('starting-capital')
-#     risk_tolerance = request.form.get('risk-tolerance')
-#     investment_horizon = request.form.get('investment-horizon')
-
-#     # Perform some calculations or processing here
-#     # For example, generate investment recommendations based on the input parameters
-#     # This is a placeholder for the actual logic
-#     recommendations = {
-#         'message': 'Investment recommendations based on your input will be displayed here.',
-#         'starting_capital': starting_capital,
-#         'risk_tolerance': risk_tolerance,
-#         'investment_horizon': investment_horizon
-#     }
-
-#     # Instead of returning JSON, store the recommendations in the session and redirect to the portfolio page
-#     # You can also use flash messages to display the 'message'
-#     flash(recommendations['message'])
-#     return redirect(url_for('portfolio', recommendations=recommendations))
-
-
-@app.route('/portfolio')
-def portfolio():
-    # Retrieve recommendations from the session or use defaults
-    recommendations = request.args.get('recommendations', {})
-    return render_template('UI.html', recommendations=recommendations)
-
 if __name__ == '__main__':
     app.run()
+#%%
+
 #%%

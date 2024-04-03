@@ -50,105 +50,77 @@
         </ul>
     </nav>
 
-    <section>
+    <main>
         <section style="text-align: center; background-color: #f8f9fa; padding: 10px;">
-            <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0"></div>
             <h2>Long Portfolio Breakdown by Percent of Portfolio:</h2>
             <iframe src="/static/pie_table_long.html" width="100%" height="600"
                 title="Long Portfolio Breakdown"></iframe>
             <h2 style="color:red;">Short Portfolio Breakdown by Percent of Portfolio:</h2>
             <iframe src="/static/pie_table_short.html" width="100%" height="600"
                 title="Short Portfolio Breakdown"></iframe>
-            <section>
-                <div class="plotly-graph-container">
 
-                    <h2>Quant Invests Customized Indicator:</h2>
+            <section>
+                <h2>Quant Invests Customized Indicator:</h2>
+                <div class="plotly-graph-container">
                     {{ div|safe }}
                 </div>
             </section>
+
             <div style="display: grid; place-items: center;">
-                <!-- Your content here -->
-
                 <div style="text-align:center;">
-                    <div class="input-group mb-3">
-                        <form id="symbol-form" action="/data" method="POST">
-                            <h3>Input Symbol <span style="color:red;">from the list Below</span><br> to view a
-                                comprehensive 14 period hourly table<input type="text" name="symbol" />
-                            </h3>
-                            <p><input type="submit" value="Submit" /></p>
-                        </form>
-                    </div>
-                    <div style="text-align:center;">
-                        <!-- Container for the table -->
-                        <div id="table-container"></div>
-                        <div style="text-align:center;">
-                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                            <script>
-                                $(document).ready(function () {
-                                    $('#symbol-form').on('submit', function (event) {
-                                        event.preventDefault();
+                    <form id="symbol-form" action="/data" method="POST">
+                        <h3>Input Symbol <span style="color:red;">from the list Below</span><br> to view a
+                            comprehensive 14 period hourly table<input type="text" name="symbol" />
+                        </h3>
+                        <p><input type="submit" value="Submit" /></p>
+                    </form>
 
-                                        // Get the entered symbol
-                                        var symbol = $(this).find('input[name="symbol"]').val();
-
-                                        // Load the HTML file for the entered symbol into the table container
-                                        $('#table-container').load('/charts/' + symbol + '.html', function (response, status, xhr) {
-                                            if (status == "error") {
-                                                var msg = "Sorry but there was an error: ";
-                                                alert(msg + xhr.status + " " + xhr.statusText);
-                                            }
-                                        });
-                                    });
-                                });
-                            </script>
-                        </div>
-                    </div>
+                    <!-- Container for the table -->
+                    <div id="table-container"></div>
                 </div>
-
             </div> <!-- /container -->
         </section>
-        </div>
+
         <section>
-            <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-                <div style="text-align:center;">
-                    <h2>Current Portfolio Weightings: </h2>
-                    <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-                        <pre><span style="color:green; font-size: 30px;">Bullish Portfolio: {{ bullish }}%</span></pre>
-                        <pre><span style="color:red; font-size: 30px;">Bearish Portfolio: {{ bearish }}%</span></pre>
-                        <iframe id="tables" src="/templates/tables/table_css.html" height="1050" width="770"></iframe>
-                    </div>
-        </section>
-        <!-- Main content area -->
-        <div class="column">
-            {%block body%}
-            {%endblock%}
-            <!-- Your tables go here -->
-            {% for table in tables %}
-            {{ table|safe }}
-            {% endfor %}
-            <div class="container">
-                <h2>Price Chart</h2>
-                <img src="{{ price_chart }}" alt="Price Chart">
-                <h2>Trending Chart</h2>
-                <img src="{{ trending_chart }}" alt="Trending Chart">
+            <div style="text-align:center;">
+                <h2>Current Portfolio Weightings: </h2>
+                <pre><span style="color:green; font-size: 30px;">Bullish Portfolio: {{ bullish }}%</span></pre>
+                <pre><span style="color:red; font-size: 30px;">Bearish Portfolio: {{ bearish }}%</span></pre>
+                <iframe id="tables" src="/templates/tables/table_css.html" height="1050" width="770"></iframe>
             </div>
-        </div>
-        </div>
-    </section>
+        </section>
+    </main>
+
+    <footer class="small text-center text-muted">
+        <p>Created by <a href="https://quantinvests.com">Quant Invests Software</a></p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#symbol-form').on('submit', function (event) {
+                event.preventDefault();
+
+                // Get the entered symbol
+                var symbol = $(this).find('input[name="symbol"]').val();
+
+                // Load the HTML file for the entered symbol into the table container
+                $('#table-container').load('/charts/' + symbol + '.html', function (response, status, xhr) {
+                    if (status == "error") {
+                        var msg = "Sorry but there was an error: ";
+                        alert(msg + xhr.status + " " + xhr.statusText);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
-</main>
-</div>
-
-<footer class="small text-center text-muted">
-    <p>Created by <a href="https://quantinvests.com">Quant Invests Software</a></p>
-</footer>
-
-<!-- Bootstrap core JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
 
 </html>
