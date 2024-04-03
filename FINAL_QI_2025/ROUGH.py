@@ -181,6 +181,30 @@ total_weight
 
 
 
+# @app.route("/register", methods=['GET', 'POST'])
+# def register():
+#     # Your registration logic here
+
+# @app.route("/login", methods=['GET', 'POST'])
+# def login():
+#     # Your login logic here
+
+# @app.route("/logout")
+# @login_required
+# def logout():
+#     logout_user()
+#     flash('You have been logged out.', 'success')
+#     return redirect(url_for('homepage'))
+
+
+
+# login_manager.init_app(app)
+
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     from models import User  # Import here to avoid circular dependency
+#     return User.query.get(int(user_id))
 
 
 
@@ -188,7 +212,34 @@ total_weight
 
 
 
+# @app.route('/submit', methods=['POST'])
+# def submit():
+#     # Extract the form data
+#     starting_capital = request.form.get('starting-capital')
+#     risk_tolerance = request.form.get('risk-tolerance')
+#     investment_horizon = request.form.get('investment-horizon')
 
+#     # Perform some calculations or processing here
+#     # For example, generate investment recommendations based on the input parameters
+#     # This is a placeholder for the actual logic
+#     recommendations = {
+#         'message': 'Investment recommendations based on your input will be displayed here.',
+#         'starting_capital': starting_capital,
+#         'risk_tolerance': risk_tolerance,
+#         'investment_horizon': investment_horizon
+#     }
+
+#     # Instead of returning JSON, store the recommendations in the session and redirect to the portfolio page
+#     # You can also use flash messages to display the 'message'
+#     flash(recommendations['message'])
+#     return redirect(url_for('portfolio', recommendations=recommendations))
+
+
+# @app.route('/portfolio')
+# def portfolio():
+#     # Retrieve recommendations from the session or use defaults
+#     recommendations = request.args.get('recommendations', {})
+#     return render_template('UI.html', recommendations=recommendations)
 
 use the multiplier table instead of df
 #%%

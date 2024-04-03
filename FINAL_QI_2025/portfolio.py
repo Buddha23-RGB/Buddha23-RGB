@@ -230,9 +230,22 @@ pivot_table.fillna(0, inplace=True)
 signal_pivot = df['Signal'].unstack(level='Ticker')
 multiplier_sum = pivot_table.sum(axis=1)
 signal_sum = signal_pivot.sum(axis=1)
+dd= pd.DataFrame(multiplier_sum)
+#$%%
+dd.columns = ['MultiplierSum']
+dd['SignalSum'] = signal_sum
+dd.to_csv("C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/final_tables/final_table.csv")
+#%%
+signal_sum
+#%%
+
 df = df.reset_index(level='Ticker')
 df['MultiplierSum'] = multiplier_sum
 df['SignalSum'] = signal_sum
+#%%
+
+df.MultiplierSum
+#%%
 df.reset_index(inplace=True)
 df.set_index(['Ticker', 'Datetime'], inplace=True)
 df.to_csv(f"{final_path}/main_data.csv")
