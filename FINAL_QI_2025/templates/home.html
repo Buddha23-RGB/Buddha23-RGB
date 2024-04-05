@@ -46,3 +46,77 @@
     </table>
 </div>
 {%endblock%}
+
+<!-- Existing code -->
+<div class="container">
+    <iframe src="{{ url_for('home') }}" width="500" height="500"></iframe>
+</div>
+
+<!-- New container for the symbols' table -->
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <!-- Add more columns as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in symbols %}
+            <tr>
+                <td>{{ row.Symbols }}</td>
+                <td>{{ row.Price }}</td>
+                <td>{{ row.Multiplier }}</td>
+                <td>{{ row.Signal }}</td>
+                <!-- Add more cells as needed -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#dataTable').DataTable();
+    });
+</script>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/">Exchanges</a> > <a href="/exchange/{{ code }}">{{ code }}</a> > <b>{{ market }} {{ granularity
+            }}</b>
+        <p />
+
+        <h1>{{ market }} {{ granularity }}</h1>
+        <table id="dataTable" class="table table-sm table-light table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+
+                    <th>Timestamp</th>
+                    <th>Open</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candle in candles %}
+                <tr>
+                    <td>{{ candle.datetime }}</td>
+                    <td>{{ candle.open }}</td>
+                    <td>{{ candle.high }}</td>
+                    <td>{{ candle.low }}</td>
+                    <td>{{ candle.close }}</td>
+                    <td>{{ candle.volume }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

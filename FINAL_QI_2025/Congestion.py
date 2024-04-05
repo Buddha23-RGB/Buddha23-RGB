@@ -1,4 +1,7 @@
 # %%
+import matplotlib.style
+import datetime
+import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt 
 import commons
 from commons import *
@@ -29,6 +32,12 @@ plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
 
 sns.set_style('whitegrid')
 # %%
+
+# Load environment variables from .env file if it exists
+load_dotenv()
+
+
+
 
 class CongestionIndexTrader:
     def __init__(self, symbol, start, now, interval, windows):
@@ -100,28 +109,21 @@ class CongestionIndexTrader:
         return self.df.fillna(0)
 
     def plot_trends_and_signals(self, window):
-        # Ensure the DataFrame is not empty
         if self.df is None or self.df.empty:
             print("DataFrame is empty. No data to plot.")
             return
 
-        # Slice the DataFrame to the last 'slice_' rows
-        slice_ = 255
+        slice_ = 400
         df_slice = self.df[-slice_:]
 
-        # Calculate the buffer for y-axis limits
-        buffer_percent = 0.05  # 5% buffer above and below the price range
         price_min = df_slice['Close'].min()
         price_max = df_slice['Close'].max()
-        price_buffer = (price_max - price_min) * buffer_percent
+        price_buffer = (price_max - price_min) * 0.05
 
-        # Plot the closing price
-        # Save the figure and axis reference
         fig, ax = plt.subplots(figsize=(14, 7))
         ax.plot(df_slice.index, df_slice['Close'],
                 label='Closing Price', color='skyblue')
 
-        # Plot CI_signal as markers
         ci_long_signals = df_slice[df_slice[f'CI_signal_{window}'] > 0]
         ci_short_signals = df_slice[df_slice[f'CI_signal_{window}'] < 0]
         ax.scatter(ci_long_signals.index,
@@ -129,7 +131,6 @@ class CongestionIndexTrader:
         ax.scatter(ci_short_signals.index,
                    ci_short_signals['Close'], label='CI Short Signal', marker='v', color='red')
 
-        # Plot IDX_signal as markers
         idx_long_signals = df_slice[df_slice[f'IDX_signal_{window}'] > 0]
         idx_short_signals = df_slice[df_slice[f'IDX_signal_{window}'] < 0]
         ax.scatter(idx_long_signals.index,
@@ -137,67 +138,112 @@ class CongestionIndexTrader:
         ax.scatter(idx_short_signals.index,
                    idx_short_signals['Close'], label='IDX Short Signal', marker='x', color='fuchsia', alpha=0.5)
 
-        # Highlight CI_trend areas with more opaque colors
         bullish_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Bullish']
         bearish_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Bearish']
-        congested_trend = df_slice[df_slice[f'CI_trend_{window}']
-                                   == 'Congested']
+        congested_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Congested']
 
-        # Plot bullish trend areas
         ax.fill_between(
             bullish_trend.index, bullish_trend['Close'], color='green', alpha=0.3, label='Bullish Trend')
-        # Plot bearish trend areas
         ax.fill_between(
             bearish_trend.index, bearish_trend['Close'], color='red', alpha=0.5, label='Bearish Trend')
-        # Plot congested trend areas
         ax.fill_between(congested_trend.index,
                         congested_trend['Close'], color='orange', alpha=0.3, label='Congested Trend')
 
-        # Customize and show the plot
         ax.set_title(
             f'Closing Price with CI and IDX Signals for {self.symbol}')
         ax.set_xlabel('Date')
         ax.set_ylabel('Price')
         ax.legend()
 
-        # Set y-axis limits with buffer
         ax.set_ylim(price_min - price_buffer, price_max + price_buffer)
 
-        # Save the figure
         chart_filename = f'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts/trending_chart_{self.symbol}.jpg'
         fig.savefig(chart_filename)
-        plt.close(fig)  # Close the figure to free up memory
+        plt.close(fig)
 
 
-# %%
-"""Plot"""
-# Set up date variables
 now = datetime.datetime.now()
 start_daily = now - datetime.timedelta(days=2500)
 start_hourly = now - datetime.timedelta(days=720)
 start_quarter = now - datetime.timedelta(days=80)
 
-# Set the style to 'dark_background'
 plt.style.use('dark_background')
-# Usage
-# Initialize a DataFrame to store the best window for each symbol
+
 best_windows_df = pd.DataFrame(
     columns=['Symbol', 'Best Window', 'Performance'])
+
 windows = commons.windows
 
-for symbol in short_list:
-    # Initialize the trader with the necessary parameters
+for symbol in symbols:
     trader = CongestionIndexTrader(
         symbol=symbol, start=start_hourly, now=now, interval='1h', windows=windows)
 
-    # Download the data and calculate indicators
     df_snapshot = trader.snapshot()
+
     df = pd.DataFrame(df_snapshot)
 
-    # Plot trends and signals
-    # Use the first window size for plotting
     trend_path = f"C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/tables/{symbol}.csv"
     df.to_csv(trend_path)
-    # Assuming this method exists in your class
+
     trader.plot_trends_and_signals(window=40)
+    
 #%%
+"""
+This code does the following:
+
+Calculates the start quarter as 80 days before the current time.
+Sets the plot style to 'dark_background'.
+Creates a DataFrame to store the best window for each symbol.
+Defines the window sizes.
+Loops over each symbol in the short list.
+Creates a trader with the given symbol, start time, current time, interval, and window sizes.
+Downloads the data and calculates the indicators.
+Converts the snapshot to a DataFrame.
+Saves the trends to a CSV file.
+Plots the trends and signals using the first window size.
+"""
+
+# %%
+
+# %%[markdown]
+"""
+Congestion Index
+================
+
+    Identify Stockcycle:
+    --------------------
+
+        1) If the Stock's Cycle is Trending
+            - the absolute value of the CI has to be greater than 20
+
+        2) If the Stock's Cycle is Congestion Index
+
+            - the absolute value of the CI has to be less than 20,
+            - separate them from the stocks experiencing congestion in price Action
+
+Equation
+========
+
+    C = Closing Price
+    X = Time Segment
+    H = Highest High for the chosen Time Period
+    L = Lowest Low for the chosen Time Period
+    Noise minimization = Further Smoothed by a 3 Day EMA
+
+    Index Fluctuations & Range of Readings:
+    --------------------------------------
+
+        Range is from 100 to -100
+        Trending instrument's CI reading must be great than 20 for a long position
+            less than -20 indicates a downturn in the instrument, short position
+
+Output
+======
+
+    List of Filtered/Usable Trending Ticker Symbols
+    Trend Identification
+    Congestion Index: +/-20 reading indicates market is trending (otherwise sideways/congested price action.
+
+"""
+# %%
+

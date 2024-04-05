@@ -340,6 +340,43 @@ db.to_sql("signal_table", engine, if_exists="replace")
 
 #%%
 
+
+def render_table(symbol):
+    with open(f"templates/tables/{symbol}.html") as table:
+        template = Template(table.read())
+        # Load data for the table
+        data = pd.read_csv(f'data/{symbol}.csv')
+        return template.render(
+            data=data.to_dict(orient='records')
+        )
+
+
+@app.route('/tables/<symbol>.html')
+def table(symbol):
+    return render_table(symbol)
+
+
+@app.route('/data', methods=['POST', 'GET'])
+def data():
+    form_data = None
+    if request.method == 'POST':
+        form_data = request.form
+        symbol = form_data.get('symbol')
+        if symbol and isinstance(symbol, str):
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # AJAX request, return only the table HTML
+                return render_table(symbol)
+            else:
+                # Normal request, return the full page with the image
+                image_url = url_for('static', filename=f'images/{symbol}.png')
+                return render_template('/data.html', form_data=form_data, image_url=image_url)
+        return render_template('index.html', form_data=form_data)
+
+
+app = Flask(__name__)
+
+
+
 # %%
 portfolio# %%
 from flask import send_from_directory
@@ -1037,3 +1074,253 @@ def user_portfolio(username):
             flash('User not found!')
         return redirect(url_for('user_portfolio', username=username))
     return render_template('user_portfolio.html', form=form)
+
+@app.route("/")
+def index():
+    from plotly.offline import plot
+    portfolio = pd.read_csv(
+        os.path.join(root_dir, 'db', 'final_tables', 'final_table.csv'), index_col=[0], parse_dates=True)
+    portfolio = portfolio.iloc[-400:]
+    # Create  trace for total_weightings
+    trace1 = go.Scatter(
+        x=portfolio.index,
+        y=portfolio['MultiplierSum'],
+        mode='lines',
+        name='total_weightings'
+    )
+    layout = go.Layout(
+        title='QI Custom Hourly Weightings Indicator',
+        yaxis=dict(title='total_weightings'),
+        yaxis2=dict(title='Multiplier'),
+        plot_bgcolor='black',
+        paper_bgcolor='black',
+        width=1000,  # double the current width
+        shapes=[
+            # Line Horizontal
+            dict(
+                type="line",
+                x0=portfolio.index.min(),
+                y0=65,
+                x1=portfolio.index.max(),
+                y1=65,
+                line=dict(
+                    color="red",
+                    width=2,
+                    dash="dashdot",
+                ),
+            ),
+            dict(
+                type="line",
+                x0=portfolio.index.min(),
+                y0=0,
+                x1=portfolio.index.max(),
+                y1=0,
+                line=dict(
+                    color="white",
+                    width=2,
+                ),
+            ),
+            dict(
+                type="line",
+                x0=portfolio.index.min(),
+                y0=-65,
+                x1=portfolio.index.max(),
+                y1=-65,
+                line=dict(
+                    color="green",
+                    width=2,
+                    dash="dashdot",
+                )
+            )
+        ]
+    )
+    # Create a figure
+    fig = go.Figure(data=[trace1], layout=layout)
+
+    # Convert the figure to a div string
+    div = plot(fig, output_type='div')
+    weights = pd.read_csv(
+        os.path.join(root_dir, 'db', 'weights_portfolio.csv'))
+    return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
+
+
+if __name__ == '__main__':
+    app.run()
+    
+    
+    
+symbols = commons.short_list
+windows = commons.windows
+style = matplotlib.style.use('dark_background')
+plt.style.use('dark_background')
+# create our custom_dark theme from the plotly_dark template
+plt_io.templates["custom_dark"] = plt_io.templates["plotly_dark"]
+
+# set the paper_bgcolor and the plot_bgcolor to a new color
+plt_io.templates["custom_dark"]['layout']['paper_bgcolor'] = '#30404D'
+plt_io.templates["custom_dark"]['layout']['plot_bgcolor'] = '#30404D'
+
+# you may also want to change gridline colors if you are modifying background
+plt_io.templates['custom_dark']['layout']['yaxis']['gridcolor'] = '#4f687d'
+plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
+
+sns.set_style('whitegrid')
+
+
+class CongestionIndexTrader:
+    def __init__(self, symbol, start, now, interval, windows):
+        self.symbol = symbol
+        self.start = start
+        self.now = now
+        self.interval = interval
+        self.windows = windows
+        self.df = None
+
+    def IMO_function(self, indicator, n):
+        LL = indicator.rolling(window=n).min()
+        HH = indicator.rolling(window=n).max()
+        IMO_val = (indicator - LL) / (HH - LL) * 100
+        return IMO_val.ewm(span=2, min_periods=3).mean()
+
+    def signal_gen(self, IMO_df):
+        Trade_ID = np.where(
+            ((IMO_df < 75) & (IMO_df.shift(1) > 75)) | (IMO_df < 25), -1, 0)
+        Trade_ID = np.where(
+            ((IMO_df > 25) & (IMO_df.shift(1) < 25)) | (IMO_df > 75), 1, Trade_ID)
+        return Trade_ID
+
+    def calculate_window_indicators(self):
+        for window in self.windows:
+            HH = self.df['High'].rolling(window=window).max()
+            LL = self.df['Low'].rolling(window=window).min()
+            self.df[f'CI_{window}'] = self.df['Close'].pct_change(
+                window) / (HH.pct_change(window) + 1e-9) * 100
+            self.df[f'IDX_{window}'] = (
+                self.df['Close'] - LL) / (HH - LL) * 100
+            self.df[f'CI_IMO_{window}'] = self.IMO_function(
+                self.df[f'CI_{window}'], window)
+            self.df[f'IDX_IMO_{window}'] = self.IMO_function(
+                self.df[f'IDX_{window}'], window)
+            self.df[f'CI_signal_{window}'] = self.signal_gen(
+                self.df[f'CI_IMO_{window}'])
+            self.df[f'IDX_signal_{window}'] = self.signal_gen(
+                self.df[f'IDX_IMO_{window}'])
+            self.df[f'CI_trend_{window}'] = np.where(self.df[f'CI_{window}'] > 20, "Bullish",
+                                                     np.where(self.df[f'CI_{window}'] < -20, "Bearish", "Congested"))
+
+    def snapshot(self):
+        self.df = yf.download(self.symbol, start=self.start,
+                              end=self.now, interval=self.interval)
+        self.df['date'] = self.df.index
+        self.df['returns'] = np.log(
+            self.df['Adj Close'] / self.df['Adj Close'].shift(1))
+        self.df['log_returns'] = np.log(
+            self.df['Close'] / self.df['Close'].shift(1))
+        self.df['TR'] = abs(self.df['High'] - self.df['Low'])
+        self.calculate_window_indicators()
+        return self.df.fillna(0)
+
+    # ... (backtest_and_analyze method remains unchanged) ...
+
+    def plot_trends_and_signals(self, window):
+        # Ensure the DataFrame is not empty
+        if self.df is None or self.df.empty:
+            print("DataFrame is empty. No data to plot.")
+            return
+
+        # Slice the DataFrame to the last 'slice_' rows
+        slice_ = 255
+        df_slice = self.df[-slice_:]
+
+        # Calculate the buffer for y-axis limits
+        buffer_percent = 0.05  # 5% buffer above and below the price range
+        price_min = df_slice['Close'].min()
+        price_max = df_slice['Close'].max()
+        price_buffer = (price_max - price_min) * buffer_percent
+
+        # Plot the closing price
+        # Save the figure and axis reference
+        fig, ax = plt.subplots(figsize=(14, 7))
+        ax.plot(df_slice.index, df_slice['Close'],
+                label='Closing Price', color='skyblue')
+
+        # Plot CI_signal as markers
+        ci_long_signals = df_slice[df_slice[f'CI_signal_{window}'] > 0]
+        ci_short_signals = df_slice[df_slice[f'CI_signal_{window}'] < 0]
+        ax.scatter(ci_long_signals.index,
+                   ci_long_signals['Close'], label='CI Long Signal', marker='^', color='lime')
+        ax.scatter(ci_short_signals.index,
+                   ci_short_signals['Close'], label='CI Short Signal', marker='v', color='red')
+
+        # Plot IDX_signal as markers
+        idx_long_signals = df_slice[df_slice[f'IDX_signal_{window}'] > 0]
+        idx_short_signals = df_slice[df_slice[f'IDX_signal_{window}'] < 0]
+        ax.scatter(idx_long_signals.index,
+                   idx_long_signals['Close'], label='IDX Long Signal', marker='o', color='aqua', alpha=0.5)
+        ax.scatter(idx_short_signals.index,
+                   idx_short_signals['Close'], label='IDX Short Signal', marker='x', color='fuchsia', alpha=0.5)
+
+        # Highlight CI_trend areas with more opaque colors
+        bullish_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Bullish']
+        bearish_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Bearish']
+        congested_trend = df_slice[df_slice[f'CI_trend_{window}'] == 'Congested']
+
+        # Plot bullish trend areas
+        ax.fill_between(
+        bullish_trend.index, bullish_trend['Close'], color='green', alpha=0.3, label='Bullish Trend')
+        # Plot bearish trend areas
+        ax.fill_between(
+        bearish_trend.index, bearish_trend['Close'], color='red', alpha=0.5, label='Bearish Trend')
+        # Plot congested trend areas
+        ax.fill_between(congested_trend.index,
+                        congested_trend['Close'], color='orange', alpha=0.3, label='Congested Trend')
+
+        # Customize and show the plot
+        ax.set_title(
+        f'Closing Price with CI and IDX Signals for {self.symbol}')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Price')
+        ax.legend()
+
+        # Set y-axis limits with buffer
+        ax.set_ylim(price_min - price_buffer, price_max + price_buffer)
+
+        # Save the figure
+        chart_filename = f'/workspaces/Congestion/charts/trading_chart_{
+        self.symbol}.jpg'
+        fig.savefig(chart_filename)
+        plt.close(fig)  # Close the figure to free up memory
+
+
+            # %%
+"""Plot"""
+# Set up date variables
+now= datetime.datetime.now()
+start_daily= now - datetime.timedelta(days=2500)
+start_hourly= now - datetime.timedelta(days=720)
+start_quarter= now - datetime.timedelta(days=80)
+
+# Set the style to 'dark_background'
+plt.style.use('dark_background')
+# Usage
+# Initialize a DataFrame to store the best window for each symbol
+best_windows_df= pd.DataFrame(
+columns=['Symbol', 'Best Window', 'Performance'])
+windows= commons.windows
+
+for symbol in short_list:
+    # Initialize the trader with the necessary parameters
+    trader= CongestionIndexTrader(
+    symbol=symbol, start='2022-01-01', now=now, interval='1d', windows=windows)
+
+    # Download the data and calculate indicators
+    df_snapshot= trader.snapshot()
+    df= pd.DataFrame(df_snapshot)
+
+    # Plot trends and signals
+    # Use the first window size for plotting
+    trend_path= f"/workspaces/Congestion/db/csv/{symbol}.csv"
+    df.to_csv(trend_path)
+    # Assuming this method exists in your class
+    trader.plot_trends_and_signals(window=20)
+    
