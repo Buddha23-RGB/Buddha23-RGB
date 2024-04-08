@@ -24,7 +24,7 @@ git checkout Buddha23-RGB-QI
 # Make your changes
 git add .
 git commit -m "Your commit message Aplir8"
-git push origin Buddha23-RGB-QI
+# git push origin Buddha23-RGB-QI
 
 env/Scripts/Activate.ps1
 pip install --upgrade pip
