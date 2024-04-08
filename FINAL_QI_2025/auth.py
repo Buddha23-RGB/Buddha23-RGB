@@ -1,6 +1,11 @@
 #%%
 from flask import Blueprint, request, render_template, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db'
+db = SQLAlchemy(app)
 
 bp = Blueprint('auth', __name__)
 

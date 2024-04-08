@@ -28,7 +28,7 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy import create_engine, text, inspect
 from flask import Flask
-import auth as auth_blueprint
+# import auth as auth_blueprint
 
 # Import local modules
 from commons import *
@@ -77,7 +77,7 @@ def create_app():
         'SECRET_KEY', 'your_default_secret_key')
     db = SQLAlchemy(app)
 
-    app.register_blueprint(auth_blueprint)
+    # app.register_blueprint(auth_blueprint)
     return app
 
 

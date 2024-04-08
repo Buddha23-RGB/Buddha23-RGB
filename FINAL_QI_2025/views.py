@@ -8,7 +8,7 @@ import json
 import urllib
 from django.views.decorators.cache import never_cache
 import sys
-sys.path.append('/Users/adriansmart/DjangoEnv/mysite/mysite')
+# sys.path.append('/Users/adriansmart/DjangoEnv/mysite/mysite')
 
 
 @never_cache

@@ -1,14 +1,15 @@
-# from app.table import table
-#
-#
-# from app import data
-# import csv
-#
-# a = []
-#
-# with open('tickers.csv') as csvfile:
-#     res = csv.reader(csvfile)
-#     for i in res:
-#         a.append(i[1])
-#
-# print(a)
+#%%
+from flask import Flask, render_template
+
+app = Flask(
+    __name__, template_folder='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates')
+
+
+@app.route('/')
+def home():
+    return render_template('table_css.html')
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+#%%
