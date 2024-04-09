@@ -1,0 +1,12 @@
+# Add a new user
+new_user = User(username='user1', email='user1@example.com')
+db.session.add(new_user)
+db.session.commit()
+
+# Query all users
+users = User.query.all()
+
+# Delete a user
+user_to_delete = User.query.get(1)  # Get the user with id 1
+db.session.delete(user_to_delete)
+db.session.commit()

@@ -4,73 +4,98 @@
 # !pip install Flask-Login
 # #%%
 # %pip install flask-login
+# Import standard libraries
 from commons import *
+from flask import Flask, render_template, send_from_directory, request, url_for
+from flask import Flask, render_template, send_from_directory
+from itertools import cycle
+from flask import Flask
+import os
+import json
+import sqlite3
+from datetime import datetime
+# Import third-party libraries
+import pandas as pd
 import yfinance as yf
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.style
 import plotly.graph_objects as go
 import plotly.io as plt_io
-import matplotlib.style
-import matplotlib.pyplot as plt
-import seaborn as sns
-import json
-import pandas as pd
-from datetime import datetime
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy import create_engine, text, inspect
-from werkzeug.security import generate_password_hash
-from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, render_template, request, url_for
-from dotenv import load_dotenv
-import os
-import flask_login
-# !pip install schedule
-# !pip install matplotlib
-# Load environment variables from .env file if it exists
-load_dotenv(
-    "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
+from flask import Flask
+# import auth as auth_blueprint
+image_dir = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts"
+
+# Get all image files in the directory
+image_files = [f for f in os.listdir(image_dir) if f.endswith(
+    ('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+
+# Cycle through the images (loop back to the start when reaching the end)
+image_cycle = cycle(image_files)
+# Set up plotting styles
 sns.set_style('whitegrid')
 pd.core.common.is_list_like = pd.api.types.is_list_like
-
 matplotlib.style.use('dark_background')
 plt.style.use('dark_background')
 plt_io.templates["custom_dark"] = plt_io.templates["plotly_dark"]
-
 plt_io.templates["custom_dark"]['layout']['paper_bgcolor'] = '#30404D'
 plt_io.templates["custom_dark"]['layout']['plot_bgcolor'] = '#30404D'
-
 plt_io.templates['custom_dark']['layout']['yaxis']['gridcolor'] = '#4f687d'
 plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
+
+# Import local modules
+
+# Load environment variables from .env file if it exists
+load_dotenv(
+    "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
+
+# Directory containing images
+image_dir = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts"
+
+# Get all image files in the directory
+image_files = [f for f in os.listdir(image_dir) if f.endswith(
+    ('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+
+# Cycle through the images (loop back to the start when reaching the end)
+image_cycle = cycle(image_files)
 
 # Load config
 with open('config.json') as f:
     config = json.load(f)
 
+# Set up global variables
 root_dir = config['root_dir']
-rel_path = config['rel_path']
-table_path = config['table_path']
-benchmarks = config['benchmarks']
-short_list = config['short_list']
-windows = config['windows']
-final_path = config['final_path']
-
-
-
-db = SQLAlchemy()
 
 
 def create_app():
-    DB_FILE_PATH = os.path.join(root_dir, 'db', 'stock.db')
-    DB_URI = f"sqlite:///{DB_FILE_PATH}"
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
     app.config['SECRET_KEY'] = os.getenv(
         'SECRET_KEY', 'your_default_secret_key')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db'
+
+    # Initialize the SQLAlchemy instance with no app
+    db = SQLAlchemy()
+
+    # Then use init_app to set the app for the SQLAlchemy instance
     db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
     return app
 
 
 app = create_app()
-
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -102,45 +127,7 @@ def about():
     return render_template('about.html')
 
 
-# @app.route('/chart')
-# def chart():
-#     return render_template('chart.html')
-
-
-def render_table(symbol):
-    with open(f"templates/tables/{symbol}.html") as table:
-        template = Template(table.read())
-        # Load data for the table
-        data = pd.read_csv(f'data/{symbol}.csv')
-        return template.render(
-            data=data.to_dict(orient='records')
-        )
-
-
-@app.route('/tables/<symbol>.html')
-def table(symbol):
-    return render_table(symbol)
-
-
-@app.route('/data', methods=['POST', 'GET'])
-def data():
-    form_data = None
-    if request.method == 'POST':
-        form_data = request.form
-        symbol = form_data.get('symbol')
-        if symbol and isinstance(symbol, str):
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # AJAX request, return only the table HTML
-                return render_table(symbol)
-            else:
-                # Normal request, return the full page with the image
-                image_url = url_for('static', filename=f'images/{symbol}.png')
-                return render_template('/data.html', form_data=form_data, image_url=image_url)
-        return render_template('index.html', form_data=form_data)
-
-
-
-@app.route("/")
+@app.route('/')
 def index():
     from plotly.offline import plot
     portfolio = pd.read_csv(
@@ -209,8 +196,27 @@ def index():
     return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
 
 
+# @app.route('/')
+# def home():
+#     # Get the next image file path
+#     image_file = next(image_cycle)
+
+#     # Load symbols data
+#     symbols = load_symbols()  # Replace with your actual function to load symbols
+
+#     return render_template('index.html', image_file=image_file, symbols=symbols)
+
+
+# @app.route('/images/<filename>')
+# def send_image(filename):
+#     return send_from_directory(image_dir, filename)
+
 if __name__ == '__main__':
     app.run()
+
+
+
+
 #%%
 
 #%%

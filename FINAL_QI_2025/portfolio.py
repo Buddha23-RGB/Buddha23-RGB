@@ -365,13 +365,6 @@ fig2.update_layout(title_text='Bearish Portfolio',
 pyo.plot(fig2, filename='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/pie_table_short.html', auto_open=True)
 fig2.show()
 
-
-#%%
-
-portfolio
-df
-#%%
-pivot_table 
 # df.loc[['MultplierSum'] 
        
 plot_multiplier=multiplier_sum.iloc[-400:]
@@ -385,8 +378,6 @@ fig2 = plot_multiplier.plot(
 ax.figure.savefig(
     "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/total_weightings_indicator.jpg")
 # Create a line plot of total_weightings
-
-
 
 #%%
 plot_signals = signal_sum.iloc[-400:]
@@ -420,6 +411,17 @@ fig.show()
 pio.write_html(
     fig, 'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/total_signals_indicator.html')
 
+#%%
+html_table
+columns_to_drop = ['Signal_div', 'Signal_ds',
+                   'Signal_cor', 'Signal_ci', 'Signal_idx']
+portfolio.drop(columns=columns_to_drop, inplace=True)
 
+# Apply the color_negative_red function to style the DataFrame
+styled_df = portfolio.reset_index(drop=False).style.applymap(
+    color_negative_red, subset=['Multiplier', 'Signal'])
+styled_df.to_html(
+    "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/table_css.html")
 # %%
-portfolio
+styled_df
+# %%
