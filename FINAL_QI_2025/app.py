@@ -5,6 +5,8 @@
 # #%%
 # %pip install flask-login
 # Import standard libraries
+from commons import *
+from flask import Flask, render_template, send_from_directory, request, url_for
 from flask import Flask, render_template, send_from_directory
 from itertools import cycle
 from flask import Flask
@@ -29,14 +31,6 @@ from sqlalchemy.orm import Session, relationship
 from sqlalchemy import create_engine, text, inspect
 from flask import Flask
 # import auth as auth_blueprint
-
-# Import local modules
-from commons import *
-
-# Load environment variables from .env file if it exists
-load_dotenv(
-    "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
-# Directory containing images
 image_dir = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts"
 
 # Get all image files in the directory
@@ -55,8 +49,23 @@ plt_io.templates["custom_dark"]['layout']['paper_bgcolor'] = '#30404D'
 plt_io.templates["custom_dark"]['layout']['plot_bgcolor'] = '#30404D'
 plt_io.templates['custom_dark']['layout']['yaxis']['gridcolor'] = '#4f687d'
 plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
-#%%
-# Load config
+
+# Import local modules
+
+# Load environment variables from .env file if it exists
+load_dotenv(
+    "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
+
+# Directory containing images
+image_dir = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts"
+
+# Get all image files in the directory
+image_files = [f for f in os.listdir(image_dir) if f.endswith(
+    ('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
+
+# Cycle through the images (loop back to the start when reaching the end)
+image_cycle = cycle(image_files)
+
 # Load config
 with open('config.json') as f:
     config = json.load(f)
@@ -64,25 +73,29 @@ with open('config.json') as f:
 # Set up global variables
 root_dir = config['root_dir']
 
-# Initialize SQLAlchemy
-
-
 
 def create_app():
-    DB_FILE_PATH = os.path.join(root_dir, 'db', 'stock.db')
-    DB_URI = f"sqlite:///{DB_FILE_PATH}"
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
     app.config['SECRET_KEY'] = os.getenv(
         'SECRET_KEY', 'your_default_secret_key')
-    db = SQLAlchemy(app)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db'
 
-    # app.register_blueprint(auth_blueprint)
+    # Initialize the SQLAlchemy instance with no app
+    db = SQLAlchemy()
+
+    # Then use init_app to set the app for the SQLAlchemy instance
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
     return app
 
 
 app = create_app()
-
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -183,20 +196,20 @@ def index():
     return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
 
 
-@app.route('/')
-def home():
-    # Get the next image file path
-    image_file = next(image_cycle)
+# @app.route('/')
+# def home():
+#     # Get the next image file path
+#     image_file = next(image_cycle)
 
-    # Load symbols data
-    symbols = load_symbols()  # Replace with your actual function to load symbols
+#     # Load symbols data
+#     symbols = load_symbols()  # Replace with your actual function to load symbols
 
-    return render_template('index.html', image_file=image_file, symbols=symbols)
+#     return render_template('index.html', image_file=image_file, symbols=symbols)
 
 
-@app.route('/images/<filename>')
-def send_image(filename):
-    return send_from_directory(image_dir, filename)
+# @app.route('/images/<filename>')
+# def send_image(filename):
+#     return send_from_directory(image_dir, filename)
 
 if __name__ == '__main__':
     app.run()
