@@ -19,13 +19,11 @@ from commons import *
 
 # Define the color_negative_red function
 
-
 def color_negative_red(value):
     color = 'red' if value < 0 else 'green' if value > 0 else 'white'
     return f'color: {color}'
 
 # Define the figures_to_html function
-
 
 def figures_to_html(figs, filename):
     with open(filename, 'w') as dashboard:
@@ -34,13 +32,11 @@ def figures_to_html(figs, filename):
             inner_html = fig.to_html().split('<body>')[1].split('</body>')[0]
             dashboard.write(inner_html)
 
-
 def IMO_function(indicator, n):
     LL_200 = indicator.rolling(window=n).min()
     HH_200 = indicator.rolling(window=n).max()
     IMO_val = (indicator - LL_200)*100 / (HH_200-LL_200)
     return IMO_val.ewm(span=2, min_periods=3).mean()
-
 
 def reverse_signal_gen(Signal_ID_data):
     Trade_ID = np.where(((Signal_ID_data < 75) & (
@@ -49,14 +45,12 @@ def reverse_signal_gen(Signal_ID_data):
         Signal_ID_data > 75), -1, Trade_ID)
     return Trade_ID
 
-
 def signal_gen(Signal_ID_data):
     Trade_ID = np.where(((Signal_ID_data < 75) & (
         Signal_ID_data.shift(1) > 75)) | (Signal_ID_data < 25), -1, 0)
     Trade_ID = np.where(((Signal_ID_data > 25) & (Signal_ID_data.shift(1) < 25)) | (
         Signal_ID_data > 75), 1, Trade_ID)
     return Trade_ID
-
 
 # Set up date variables
 now = datetime.datetime.now()
@@ -71,7 +65,6 @@ rel_path = commons.table_path
 symbols = commons.short_list
 # %%
 # Define the final_table function
-
 
 def final_table(symbol):
     table_path = os.path.join(commons.table_path, f"{symbol}_divergence.csv")
@@ -412,7 +405,6 @@ pio.write_html(
     fig, 'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/total_signals_indicator.html')
 
 #%%
-html_table
 columns_to_drop = ['Signal_div', 'Signal_ds',
                    'Signal_cor', 'Signal_ci', 'Signal_idx']
 portfolio.drop(columns=columns_to_drop, inplace=True)
@@ -422,6 +414,6 @@ styled_df = portfolio.reset_index(drop=False).style.applymap(
     color_negative_red, subset=['Multiplier', 'Signal'])
 styled_df.to_html(
     "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/table_css.html")
-# %%
+#%%
 styled_df
-# %%
+#%%

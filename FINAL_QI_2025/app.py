@@ -5,6 +5,10 @@
 # #%%
 # %pip install flask-login
 # Import standard libraries
+from werkzeug.security import check_password_hash
+from flask_login import LoginManager, login_user, login_required, logout_user
+from flask import Flask, render_template, request, redirect, url_for
+from models import User
 from commons import *
 from flask import Flask, render_template, send_from_directory, request, url_for
 from flask import Flask, render_template, send_from_directory
@@ -73,7 +77,46 @@ with open('config.json') as f:
 # Set up global variables
 root_dir = config['root_dir']
 
+login_manager = LoginManager()
 
+
+# ... your existing code ...
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        user = User.query.filter_by(username=username).first()
+
+        if user is None or not check_password_hash(user.password, password):
+            return redirect(url_for('login'))
+
+        login_user(user)
+
+        return redirect(url_for('protected'))
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route('/protected')
+@login_required
+def protected():
+    return 'Logged in as: ' + current_user.username  # %%
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.getenv(
@@ -92,10 +135,10 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
 
-    return app
+    return app, db
 
 
-app = create_app()
+app,db = create_app()
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -195,6 +238,20 @@ def index():
         os.path.join(root_dir, 'db', 'weights_portfolio.csv'))
     return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
 
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
+# # @app.route('/', methods=['GET', 'POST'])
+# def portfolio_dashboard():
+#     symbols = [{'name': 'AAPL'}, {'name': 'GOOG'}, {
+#         'name': 'MSFT'}]  # Replace with your actual data
+#     selected_symbol = None
+
+#     if request.method == 'POST':
+#         selected_symbol = request.form.get('symbol')
+
+#     return render_template('stock_breakdown.html', symbols=symbols, selected_symbol=selected_symbol)
 
 # @app.route('/')
 # def home():
