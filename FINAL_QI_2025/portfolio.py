@@ -3,7 +3,7 @@ from datetime import datetime
 from Congestion import *
 from Divergence import *
 
-#%%
+# %%
 import json
 import warnings
 import matplotlib.pyplot as plt
@@ -197,11 +197,10 @@ for symbol in symbols:
 
     # Use the table_path from the configuration file
     table_file_path = os.path.join(table_path, f"{symbol}.csv")
-        
+
     column_names = ['symbol', 'signal_idx', 'signal_ci',
                     'signal_div', 'signal_ds', 'signal_cor', 'Multiplier', 'Signal', 'Price']
     table = pd.DataFrame(table, columns=column_names, index=table.index)
-
 
     table.to_csv(table_file_path)
 
@@ -230,28 +229,30 @@ pivot_table.fillna(0, inplace=True)
 signal_pivot = df['Signal'].unstack(level='Ticker')
 multiplier_sum = pivot_table.sum(axis=1)
 signal_sum = signal_pivot.sum(axis=1)
-dd= pd.DataFrame(multiplier_sum)
-#$%%
+dd = pd.DataFrame(multiplier_sum)
+# $%%
 dd.columns = ['MultiplierSum']
 dd['SignalSum'] = signal_sum
 dd.to_csv("C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/final_tables/final_table.csv")
-#%%
+# %%
 signal_sum
-#%%
+# %%
 
 df = df.reset_index(level='Ticker')
 df['MultiplierSum'] = multiplier_sum
 df['SignalSum'] = signal_sum
-#%%
+# %%
 
 df.MultiplierSum
-#%%
+# %%
 df.reset_index(inplace=True)
 df.set_index(['Ticker', 'Datetime'], inplace=True)
 df.to_csv(f"{final_path}/main_data.csv")
 pivot_table.to_csv(f"{final_path}/multiplier_data.csv")
 
-#%%
+# %%
+
+
 def create_portfolio(df):
     data = []
     for symbol in commons.short_list:
@@ -312,10 +313,9 @@ def style_table(portfolio):
     return html_table
 
 
-
 # Create portfolio
 portfolio = create_portfolio(df)
-#%%
+# %%
 
 # Style table and convert to HTML
 
@@ -334,7 +334,7 @@ with open('C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/template
     # Assuming you want to write the `html_table` to the file
     f.write(html_table)
     f.write(html_table)
-#%%
+# %%
 mult_bull = portfolio[portfolio.Multiplier > 0]
 mult_bear = portfolio[portfolio.Multiplier < 0]
 mult_bear.Multiplier = mult_bear.Multiplier * -1
@@ -349,7 +349,7 @@ weights.to_csv("db/weights_portfolio.csv")
 cash = 100000 / 0.5
 cash
 
-#%%
+# %%
 
 fig = go.Figure(data=[go.Pie(labels=mult_bull.index, values=mult_bull.Multiplier,
                 textinfo='label+percent', insidetextorientation='radial')])
@@ -357,7 +357,7 @@ fig.update_layout(title_text='Bullish Portfolio',
                   template='plotly_dark', font=dict(size=20))
 pyo.plot(fig, filename='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/pie_table_long.html', auto_open=True)
 fig.show()
-#%%
+# %%
 fig2 = go.Figure(data=[go.Pie(labels=mult_bear.index, values=mult_bear.Multiplier,
                  textinfo='label+percent', insidetextorientation='radial')])
 fig2.update_layout(title_text='Bearish Portfolio',
@@ -365,10 +365,10 @@ fig2.update_layout(title_text='Bearish Portfolio',
 pyo.plot(fig2, filename='C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/pie_table_short.html', auto_open=True)
 fig2.show()
 
-# df.loc[['MultplierSum'] 
-       
-plot_multiplier=multiplier_sum.iloc[-400:]
-#%%
+# df.loc[['MultplierSum']
+
+plot_multiplier = multiplier_sum.iloc[-400:]
+# %%
 ax = plot_multiplier.plot(figsize=(14, 6))
 ax.axhline(65, color='r', linestyle='--')  # Add horizontal line at y=70
 ax.axhline(0, color='w', linestyle='-')  # Add horizontal line at y=70
@@ -379,12 +379,13 @@ ax.figure.savefig(
     "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/static/total_weightings_indicator.jpg")
 # Create a line plot of total_weightings
 
-#%%
+# %%
 plot_signals = signal_sum.iloc[-400:]
-plot_signals = pd.DataFrame(plot_signals, index=plot_signals.index, columns=['SignalSum'])
+plot_signals = pd.DataFrame(
+    plot_signals, index=plot_signals.index, columns=['SignalSum'])
 # %%
 plot_signals
-#%%
+# %%
 ax = plot_signals.plot(figsize=(14, 6))
 fig = go.Figure()
 fig.update_layout(
@@ -411,8 +412,7 @@ fig.show()
 pio.write_html(
     fig, 'C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/charts/total_signals_indicator.html')
 
-#%%
-html_table
+# %%
 columns_to_drop = ['Signal_div', 'Signal_ds',
                    'Signal_cor', 'Signal_ci', 'Signal_idx']
 portfolio.drop(columns=columns_to_drop, inplace=True)

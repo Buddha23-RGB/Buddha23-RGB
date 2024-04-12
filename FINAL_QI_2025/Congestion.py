@@ -1,4 +1,6 @@
 # %%
+import commons
+from commons import *
 import matplotlib.style
 import datetime
 import matplotlib.pyplot as plt
@@ -35,9 +37,6 @@ sns.set_style('whitegrid')
 
 # Load environment variables from .env file if it exists
 load_dotenv()
-
-
-
 
 class CongestionIndexTrader:
     def __init__(self, symbol, start, now, interval, windows):

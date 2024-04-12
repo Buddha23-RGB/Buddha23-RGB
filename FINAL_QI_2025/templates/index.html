@@ -49,6 +49,7 @@
     <nav class="navbar">
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
             <li><a href="{{ url_for('about') }}">About</a></li>
             <li><a href="{{ url_for('disclaimer') }}">Disclaimer</a></li>
             <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
@@ -93,7 +94,7 @@
                 <h2>Current Portfolio Weightings: </h2>
                 <pre><span style="color:green; font-size: 30px;">Bullish Portfolio: {{ bullish }}%</span></pre>
                 <pre><span style="color:red; font-size: 30px;">Bearish Portfolio: {{ bearish }}%</span></pre>
-                <iframe id="tables" src="C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/templates/tables/table_css.html" height="1050" width="770"></iframe>
+                <iframe id="tables" src="/static/tables/table_css.html" height="1050" width="770"></iframe>
             </div>
         </section>
     </main>
