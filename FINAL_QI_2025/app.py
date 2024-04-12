@@ -5,57 +5,20 @@
 # #%%
 # %pip install flask-login
 # Import standard libraries
-from werkzeug.security import check_password_hash
-from flask_login import LoginManager, login_user, login_required, logout_user
-from flask import Flask, render_template, request, redirect, url_for
-from models import User
-from commons import *
-from flask import Flask, render_template, send_from_directory, request, url_for
-from flask import Flask, render_template, send_from_directory
+from flask_login import login_required
+from flask_login import current_user
+from flask import Flask, render_template, url_for, flash, redirect, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, logout_user, UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from forms import RegistrationForm
 from itertools import cycle
-from flask import Flask
 import os
 import json
-import sqlite3
-from datetime import datetime
-# Import third-party libraries
-import pandas as pd
-import yfinance as yf
-import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib.style
-import plotly.graph_objects as go
-import plotly.io as plt_io
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, url_for
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from werkzeug.security import generate_password_hash
-from sqlalchemy.orm import Session, relationship
-from sqlalchemy import create_engine, text, inspect
-from flask import Flask
-# import auth as auth_blueprint
-image_dir = "C:/Users/joech/OneDrive/Documents/Buddha23-RGB/FINAL_QI_2025/db/charts"
-
-# Get all image files in the directory
-image_files = [f for f in os.listdir(image_dir) if f.endswith(
-    ('.png', '.jpg', '.jpeg', '.gif', '.bmp'))]
-
-# Cycle through the images (loop back to the start when reaching the end)
-image_cycle = cycle(image_files)
-# Set up plotting styles
-sns.set_style('whitegrid')
-pd.core.common.is_list_like = pd.api.types.is_list_like
-matplotlib.style.use('dark_background')
-plt.style.use('dark_background')
-plt_io.templates["custom_dark"] = plt_io.templates["plotly_dark"]
-plt_io.templates["custom_dark"]['layout']['paper_bgcolor'] = '#30404D'
-plt_io.templates["custom_dark"]['layout']['plot_bgcolor'] = '#30404D'
-plt_io.templates['custom_dark']['layout']['yaxis']['gridcolor'] = '#4f687d'
-plt_io.templates['custom_dark']['layout']['xaxis']['gridcolor'] = '#4f687d'
-
-# Import local modules
-
+import pandas as pd
+import commons
+from commons import *
 # Load environment variables from .env file if it exists
 load_dotenv(
     "C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\.github\\.env")
@@ -77,15 +40,60 @@ with open('config.json') as f:
 # Set up global variables
 root_dir = config['root_dir']
 
-login_manager = LoginManager()
+# Initialize the SQLAlchemy instance with no app
+db = SQLAlchemy()
 
 
-# ... your existing code ...
+class User(UserMixin, db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+def create_app():
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = os.getenv(
+        'SECRET_KEY', 'your_default_secret_key')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db'
+
+    # Then use init_app to set the app for the SQLAlchemy instance
+    db.init_app(app)
+
+    with app.app_context():
+        db.create_all()
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    return app, db
+
+
+app, db = create_app()
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(
+            form.password.data, method='sha256')
+        user = User(username=form.username.data,
+                    email=form.email.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -101,44 +109,16 @@ def login():
 
         login_user(user)
 
-        return redirect(url_for('protected'))
+        return redirect(url_for('index'))
 
     return render_template('login.html')
 
 
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
     return redirect(url_for('index'))
 
-
-@app.route('/protected')
-@login_required
-def protected():
-    return 'Logged in as: ' + current_user.username  # %%
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.getenv(
-        'SECRET_KEY', 'your_default_secret_key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\joech\\OneDrive\\Documents\\Buddha23-RGB\\FINAL_QI_2025\\db\\stock.db'
-
-    # Initialize the SQLAlchemy instance with no app
-    db = SQLAlchemy()
-
-    # Then use init_app to set the app for the SQLAlchemy instance
-    db.init_app(app)
-
-    with app.app_context():
-        db.create_all()
-
-    login_manager = LoginManager()
-    login_manager.init_app(app)
-
-    return app, db
-
-
-app,db = create_app()
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -170,6 +150,14 @@ def about():
     return render_template('about.html')
 
 
+@app.route('/table_css')
+def table_css():
+    return render_template('tables/table_css.html')
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', name=current_user.username)
 @app.route('/')
 def index():
     from plotly.offline import plot
@@ -239,6 +227,17 @@ def index():
     return render_template('index.html', bearish=weights['Bearish Portfolio'][0], bullish=weights['Bullish Portfolio'][0], div=div)
 
 
+
+
+if __name__ == '__main__':
+    app.run()
+
+
+
+
+#%%
+
+#%%
 # @login_manager.user_loader
 # def load_user(user_id):
 #     return User.get(user_id)
@@ -267,13 +266,3 @@ def index():
 # @app.route('/images/<filename>')
 # def send_image(filename):
 #     return send_from_directory(image_dir, filename)
-
-if __name__ == '__main__':
-    app.run()
-
-
-
-
-#%%
-
-#%%

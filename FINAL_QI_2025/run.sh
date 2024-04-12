@@ -19,8 +19,8 @@ pip install virtualenv
 python -m venv env
 
 # Activate the virtual environment
-source env/bin/activate
-
+# source env/bin/activate
+env/Scripts/Activate.ps1
 # Install Python packages using pip instead of pipenv
 pip install requests flask_caching flask_marshmallow flask_bcrypt
 
@@ -32,7 +32,7 @@ pipenv run
 # Git commands
 git checkout Buddha23-RGB-QI
 git add .
-git commit -m "april11"
+git commit -m "april12"
 
 # Run Flask application
 flask run# Run Flask application
@@ -46,14 +46,13 @@ docker ps
 python -m ensurepip --upgrade
 pip install virtualenv
 python -m venv env
-
-flask run
-
-
 git checkout Buddha23-RGB-QI
 # Make your changes
 git add .
 git commit -m "Your commit message Aplir8"
+flask run
+
+
 # git push origin Buddha23-RGB-QI
 
 env/Scripts/Activate.ps1

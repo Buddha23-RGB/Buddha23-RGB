@@ -51,7 +51,7 @@ slideshow_instance = Slideshow(root)
 # Run the Tkinter event loop
 root.mainloop()
 # Import the Required modules
-
+#%%
 # Inputting the name of the Stock and Storing it in a Variable
 STK = input("Enter share name : ")
 
