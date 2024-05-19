@@ -2,7 +2,7 @@
  
 
 Quant Invests
-Where the Quant Invests For You!
+Where the Quant Invests For You!d
 
 Author:
 Joe Chamoun
